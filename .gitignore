@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+_book/
+.quarto/
+*.knit.md
+*.utf8.md

@@ -37,6 +37,7 @@ Currently, the English version is AI-translated with no thorough proofreading. I
 
 因为发现自己有时候会返回去修改之前的章节，所以还是记录一下修改历史，方便自己和读者。开始记录时间为20251014,目前四章版本。
 
+<!-- AUTO-CHANGELOG-START -->
 20251014: 在第四章中，增加“思考：一个没想好题目的关于事前事后比较的讨论”。
 
 20251015: 在第四章中，增加介绍对比编码中，使用分数的编码选择。
@@ -44,4 +45,5 @@ Currently, the English version is AI-translated with no thorough proofreading. I
 20251018：在第四章中增加介绍不平衡样本的编码方法；修订第四章的数据框与模型编号系统。
 
 20260929: 增加了由ai翻译的[英语版本](https://linwz-psychstats.share.connect.posit.cloud/en/index.html)，可以由右上角按钮进入。在第四章增加了对编码变量个数为k-1的示例解释。并没有偷懒（好吧有一点点），其实一直在写第五章，越写越多导致难产。
+<!-- AUTO-CHANGELOG-END -->
 :::

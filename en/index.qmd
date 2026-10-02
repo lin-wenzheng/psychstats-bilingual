@@ -40,7 +40,9 @@ This book is currently under active construction, and several chapters are still
 
 Because I periodically revisit and revise earlier sections, I log modification highlights below for readers' convenience. Tracking began on 2025-10-14, currently covering Chapters 1–4:
 
+<!-- AUTO-CHANGELOG-START -->
 - **2025-10-14**: In Chapter 4, added "Food for thought: A discussion on planned vs. post-hoc comparisons".
 - **2025-10-15**: In Chapter 4, introduced fractional coding choices in contrast coding.
 - **2025-10-18**: In Chapter 4, introduced coding methods for unbalanced sample sizes; refined the dataframe and model numbering conventions in Chapter 4.
+<!-- AUTO-CHANGELOG-END -->
 :::
