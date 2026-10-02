@@ -1,0 +1,29 @@
+{
+  "index.qmd": {
+    "index.html": "c01133a6"
+  },
+  "zh/chap1.qmd": {
+    "chap1.html": "44ff898c"
+  },
+  "zh/chap2.qmd": {
+    "chap2.html": "00367981"
+  },
+  "zh/chap3.qmd": {
+    "chap3.html": "695e8942"
+  },
+  "zh/chap4.qmd": {
+    "chap4.html": "16ee8cd3"
+  },
+  "en/chap1.qmd": {
+    "chap1.html": "51266ced"
+  },
+  "en/chap2.qmd": {
+    "chap2.html": "c9c4813c"
+  },
+  "en/chap3.qmd": {
+    "chap3.html": "3a713890"
+  },
+  "en/chap4.qmd": {
+    "chap4.html": "9b818ef2"
+  }
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>心理统计枕边书 | Psychological Statistics for the Unhurried People</title>
+  <script>
+    (function() {
+      var pref = null;
+      try {
+        pref = localStorage.getItem("preferred_lang");
+      } catch (e) {}
+
+      if (!pref) {
+        var userLang = (navigator.language || navigator.userLanguage || "").toLowerCase();
+        pref = userLang.startsWith("zh") ? "zh" : "en";
+      }
+
+      var target = "./" + pref + "/index.html";
+      window.location.replace(target);
+    })();
+  </script>
+  <meta http-equiv="refresh" content="0; url=./zh/index.html">
+</head>
+<body style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 60px 20px;">
+  <h2>心理统计枕边书 | Psychological Statistics for the Unhurried People</h2>
+  <p style="color: #666; margin-bottom: 30px;">Redirecting to your preferred language / 正在跳转至对应语言版本...</p>
+  <p>
+    <a href="./zh/index.html" style="margin-right: 25px; padding: 10px 20px; background: #0969da; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 500;">🇨🇳 中文版 (Chinese)</a>
+    <a href="./en/index.html" style="padding: 10px 20px; background: #2da44e; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 500;">🇬🇧 English Edition</a>
+  </p>
+</body>
+</html>

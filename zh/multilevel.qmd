@@ -1,0 +1,6 @@
+---
+title: "multilevel"
+format: html
+---
+
+国家分层和国家作为控制变量放入单层模型是否是一样的。

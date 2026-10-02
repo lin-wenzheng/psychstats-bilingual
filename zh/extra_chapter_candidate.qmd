@@ -1,0 +1,21 @@
+# 番外备选
+
+## Discriminant Analysis
+
+## Latent Profile Analysis
+
+## Linear growth model
+
+## 共同方法偏差检验
+
+## 工具变量
+
+## RI-CLPM
+
+## Meta-analysis
+
+## ESM （日志研究与密集追踪）
+
+## Dyadic data analysis （MLM, SEM, APIM, SNA）
+
+## 零效应评估与等价检验

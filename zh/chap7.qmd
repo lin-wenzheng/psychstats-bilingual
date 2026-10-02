@@ -1,0 +1,401 @@
+# 成长、秘药与魔法天赋——重复测量与混合设计（待施工）
+
+```{r}
+# 设置随机种子，确保结果可重复
+set.seed(123)
+
+# ---------- 参数设定 ----------
+n_subj   <- 100                     # 被试总数
+n_within <- 3                       # 被试内因素水平数
+
+# 被试间因素两水平，均衡分配
+group <- rep(c("control", "treatment"), each = n_subj / 2)
+
+# 连续协变量（例如年龄）
+covariate <- round(rnorm(n_subj, mean = 50, sd = 10), 1)
+
+# 固定效应参数（线性模型）
+intercept     <- 10.0               # 基准水平：control 组在 time1 的均值
+beta_group    <- 1.2                # treatment 组在 time1 相对于 control 的增量
+beta_time2    <- 0.8                # control 组 time2 相对于 time1 的增量
+beta_time3    <- 1.5                # control 组 time3 相对于 time1 的增量
+beta_int_t2   <- 0.4                # treatment 组在 time2 额外增量（交互作用）
+beta_int_t3   <- 0.8                # treatment 组在 time3 额外增量
+beta_cov      <- 0.3                # 协变量斜率
+
+# 随机效应及误差标准差
+sd_subj       <- 1.2                # 被试随机截距标准差
+sd_error      <- 0.9                # 残差标准差
+
+# ---------- 生成数据 ----------
+# 初始化存储矩阵
+y <- matrix(NA, nrow = n_subj, ncol = n_within)
+colnames(y) <- c("score_time1", "score_time2", "score_time3")
+
+# 生成每个被试的随机截距
+u_subj <- rnorm(n_subj, mean = 0, sd = sd_subj)
+
+# 逐被试计算三个时间点的得分
+for (i in 1:n_subj) {
+  grp_i <- group[i]
+  cov_i <- covariate[i]
+  u_i   <- u_subj[i]
+  
+  # 三个条件的固定效应部分
+  mu1 <- intercept + 
+    ifelse(grp_i == "treatment", beta_group, 0) + 
+    beta_cov * cov_i
+  mu2 <- intercept + beta_time2 + 
+    ifelse(grp_i == "treatment", beta_group + beta_int_t2, 0) + 
+    beta_cov * cov_i
+  mu3 <- intercept + beta_time3 + 
+    ifelse(grp_i == "treatment", beta_group + beta_int_t3, 0) + 
+    beta_cov * cov_i
+  
+  # 加入随机截距和残差
+  y[i, 1] <- mu1 + u_i + rnorm(1, 0, sd_error)
+  y[i, 2] <- mu2 + u_i + rnorm(1, 0, sd_error)
+  y[i, 3] <- mu3 + u_i + rnorm(1, 0, sd_error)
+}
+
+# 合并为宽数据框
+df_wide <- data.frame(
+  ID = 1:n_subj,
+  group = group,
+  age = covariate,
+  y
+)
+
+# ---------- 查看数据 ----------
+head(df_wide, 10)
+
+# 各组的均值和标准差（检查主效应与交互趋势）
+with(df_wide, {
+  cat("\n--- 分组描述统计 ---\n")
+  print(aggregate(cbind(score_time1, score_time2, score_time3) ~ group, 
+                  data = df_wide, mean))
+})
+
+# 保存为CSV文件（可选）
+# write.csv(df_wide, "mixed_design_data.csv", row.names = FALSE)
+```
+
+```{r}
+library(tidyr)
+library(afex)
+
+# 转换为长格式
+df_long <- pivot_longer(
+  df_wide,
+  cols = starts_with("score_"),
+  names_to = "time",
+  values_to = "score"
+)
+df_long$time <- factor(df_long$time, 
+                       levels = c("score_time1", "score_time2", "score_time3"))
+
+# 混合方差分析 (默认Type III，自动处理协变量)
+model_anova <- aov_car(
+  score ~ group * time + age + Error(ID/time),
+  data = df_long
+)
+summary(model_anova)          # 显示方差分析表
+# nice(model_anova)           # 可选：更整洁的输出
+```
+
+```{r}
+library(car)
+
+idata <- data.frame(time = factor(c(1,2,3)))
+# 创建模型（不需要协变量时，可简单 lm(cbind(y1,y2,y3) ~ group, data=df_wide)）
+model_rep <- lm(cbind(score_time1, score_time2, score_time3) ~ group + age, data = df_wide)
+# 使用Anova，指定idesign
+anova_rep <- Anova(model_rep, idata = idata, idesign = ~ time, type = "III")
+summary(anova_rep, multivariate = TRUE) # 会给出time和group:time的多元检验
+```
+
+## 重复测量方差分析
+
+测试长数据，把grouping variable作为控制变量加入线性模型的结果。
+
+## 混合设计
+
+支线1：多层线性模型
+
+------------------------------------------------------------------------
+
+这是一个极其棒的思考方向！**MANOVA 本质上就是广义线性模型（General Linear Model, GLM）的多元扩展**。而结构方程模型（SEM）是所有线性模型的“母集”，因此，**我们完全可以在 SEM 框架下写出与 MANOVA 100% 数学等价的线性方程组**。
+
+通过这种方式，你可以脱离 MANOVA 那些复杂的矩阵运算（比如 Wilks' Lambda），直接用你熟悉的“回归方程”来理解它。
+
+下面我将为你揭秘：如何在 SEM / 线性回归的视角下，完美复刻一个 $2 \times 3$（组别 A $\times$ 时间 Y）的混合设计 MANOVA。
+
+------------------------------------------------------------------------
+
+### 一、 MANOVA 在 SEM 中的等价线性方程组
+
+为了构建与 MANOVA 完全等价的模型，你不能像之前那样把 $Y_2$ 作为 $Y_1$ 的自变量（不能有时间先后指向）。在 MANOVA 的视角里，**三次测量** $Y_1, Y_2, Y_3$ 是平行的三个结果，它们同时受组别 $A$ 的预测。
+
+它的线性方程组长这样（假设 A 是虚拟变量，如 0=对照组，1=干预组）：
+
+1.  $Y_1 = i_1 + \beta_1 A + e_1$
+2.  $Y_2 = i_2 + \beta_2 A + e_2$
+3.  $Y_3 = i_3 + \beta_3 A + e_3$
+
+**【极其关键的隐藏条件】：** 在 SEM 中，你必须允许这三个残差（$e_1, e_2, e_3$）**两两自由相关（Free Covariances）**。 也就是说，模型除了估计 $\beta$ 路径，还要估计 $Cov(e_1, e_2)$、$Cov(e_2, e_3)$、$Cov(e_1, e_3)$。 *这就是 MANOVA 中 "M" (Multivariate) 的灵魂所在——它承认三次测量来自同一个人，必定存在无法被组别 A 解释的内在相关性。*
+
+------------------------------------------------------------------------
+
+### 二、 如何在这个方程组里检验“混合设计”的三大效应？
+
+现在，我们把混合设计的三个核心问题，转化为这个联立方程组里的**参数限制检验（Parameter Constraint Tests / Wald Test）**。这就是 SEM 理解 MANOVA 的精髓：
+
+#### 1. 检验“交互作用（组别 A × 时间）”
+
+- **业务问题**：干预组和对照组的变化趋势（折线图斜率）是否不同？
+- **在线性模型中怎么看？**：如果组别 $A$ 对 $Y_1, Y_2, Y_3$ 的提升效果是一模一样的（比如都提升了5分），那就意味着两组的折线图是绝对**平行**的，即没有交互作用。
+- **SEM 检验方法**： 你在 SEM 中强行设定一个参数限制：$\beta_1 = \beta_2 = \beta_3$（即限制组别的效应跨时间不变）。 如果施加这个限制后，**模型拟合度显著变差**（通过卡方差异检验 $\Delta \chi^2$ 显著），就说明这三个 $\beta$ 在现实中是不相等的，这就等价于 **MANOVA 的交互作用显著**！
+
+#### 2. 检验“组内主效应（时间效应）”
+
+- **业务问题**：忽略组别差异，大家整体的分数随时间发生变化了吗？
+- **在线性模型中怎么看？**：看方程里的截距项（$i_1, i_2, i_3$）。如果把 A 设为效应编码（-1 和 1），截距就代表了全样本在每次测量的总平均分。
+- **SEM 检验方法**： 在 SEM 中强行限制：$i_1 = i_2 = i_3$（强制三个时间点的截距/均值相等）。 如果拟合度显著变差，说明随着时间的推移，均值确实发生了变化，等价于 **MANOVA 的时间主效应显著**。
+
+#### 3. 检验“组间主效应（组别 A 的效应）”
+
+- **业务问题**：总体来看（平均三次测量），干预组是不是比对照组得分高？
+- **在线性模型中怎么看？**：看 $\beta_1, \beta_2, \beta_3$ 作为一个整体，是不是显著大于 0。
+- **SEM 检验方法**： 在 SEM 中限制：$\beta_1 + \beta_2 + \beta_3 = 0$ （或者构造一个潜变量，使其载荷全为1，然后看A对这个潜变量的预测）。 如果模型拟合变差，说明 A 对三个时间点的总体预测作用显著不为0，等价于 **组间主效应显著**。
+
+------------------------------------------------------------------------
+
+### 三、 另一种更粗暴直观的转换：差异分数（Contrast）模型
+
+实际上，SPSS 等软件在后台计算重复测量 MANOVA 时，用的就是线性转换。这也是一种极具启发性的理解方式。
+
+既然交互作用是看“变化趋势”，那我们可以直接把数据转化为“变化量”。 我们手动计算两个新的因变量： \* $\Delta Y_{21} = Y_2 - Y_1$ （从时间1到时间2的变化） \* $\Delta Y_{32} = Y_3 - Y_2$ （从时间2到时间3的变化）
+
+然后，我们只需要写两个极其简单的联立回归方程： 1. $\Delta Y_{21} = i_a + \beta_a A + e_a$ 2. $\Delta Y_{32} = i_b + \beta_b A + e_b$ *(同样允许* $e_a$ 和 $e_b$ 相关)
+
+在这个模型里： \* 如果 $\beta_a$ 或 $\beta_b$ 联合显著（A 能预测变化量），**直接等价于 MANOVA 的交互作用显著！** \* 如果截距 $i_a$ 或 $i_b$ 联合显著不为0（截距代表当 A=0 时的变化量），**直接等价于时间主效应显著！**
+
+------------------------------------------------------------------------
+
+### 四、 总结：为什么要用这种方式理解？
+
+你试图用线性模型理解 MANOVA 的直觉是非常超前的。通过上面的转换，你会发现：
+
+1.  **MANOVA 一点都不神秘**：它无非就是**“同时做了三个回归方程，并允许它们的误差项相互关联”**。
+2.  **打破方差分析的思维定势**：传统 ANOVA 思维让你总想着“组间方差/组内方差”，而线性模型思维（SEM）告诉你，这仅仅是在测试“回归系数（$\beta$）随着时间的变化是否相等”。
+3.  **为什么你之前的模型（Y1=Y2+A）不同于 MANOVA？**
+    - MANOVA 模型是：**三个方程平行，误差相关，检验** $\beta$ 是否相等。
+    - 你的自回归模型是：**用** $Y_2$ 去吃了 $Y_1$ 的方差，然后看 $A$ 还能不能预测残余部分。 现在你能清晰地看到，它们的结构和所施加的参数检验是完全两码事。
+
+```{r}
+# ---------- 2. 传统 MANOVA 检验 (差异分数法) ----------
+
+# 计算相邻时间点的差异分数
+df_wide$diff21 <- df_wide$score_time2 - df_wide$score_time1
+df_wide$diff32 <- df_wide$score_time3 - df_wide$score_time2
+
+# 用 MANOVA 检验 group 是否能显著预测这组多元差异变量
+# 这等价于检验 Group × Time 的交互作用！
+fit_manova <- manova(cbind(diff21, diff32) ~ group, data = df_wide)
+
+# 输出多元检验结果 (Wilks' Lambda 或 Pillai's Trace)
+summary(fit_manova, test = "Wilks")
+```
+
+```{r}
+# ---------- 3A. lavaan：基于差异分数的等价检验 ----------
+library(lavaan)
+# 写出双回归方程模型，同时预测两个差异分数
+model_diff_sem <- '
+  # 回归方程
+  diff21 ~ b1 * group
+  diff32 ~ b2 * group
+  
+  # 允许残差相关（这是 MANOVA 的灵魂，lavaan默认会对内生变量做此操作，这里显式写出）
+  diff21 ~~ diff32
+'
+
+# 拟合模型
+fit_diff <- sem(model_diff_sem, data = df_wide, likelihood = "wishart", estimator = "ULS")
+
+# 检验交互作用：对 b1 和 b2 进行联合 Wald 检验
+# 业务逻辑：如果 b1 和 b2 联合显著不为0，说明 group 对随时间的变化量有影响 (交互作用显著)
+lavTestWald(fit_diff, constraints = 'b1 == 0 ; b2 == 0')
+```
+
+```{r}
+# ---------- 3B. lavaan：基于原始方程和参数限制的等价检验 ----------
+
+# 模型1：无限制模型 (允许 group 对三个时间的预测效力不同)
+model_unconstrained <- '
+  score_time1 ~ b1 * group
+  score_time2 ~ b2 * group
+  score_time3 ~ b3 * group
+  # lavaan 默认允许残差相互关联，无需额外书写
+'
+fit_unconstrained <- sem(model_unconstrained, data = df_wide, likelihood = "wishart", estimator = "ULS")
+
+# 模型2：有限制模型 (强行限制 group 对三个时间的预测效力完全一样)
+# 业务逻辑：如果 group 的作用不随时间变化，那就说明变化折线是平行的 (无交互作用)
+model_constrained <- '
+  score_time1 ~ b_equal * group
+  score_time2 ~ b_equal * group
+  score_time3 ~ b_equal * group
+'
+fit_constrained <- sem(model_constrained, data = df_wide, likelihood = "wishart", estimator = "ULS")
+
+# 检验交互作用：比较两个模型（似然比检验 LRT）
+# 业务逻辑：如果无限制模型显著优于有限制模型，说明斜率(b)是不相等的，即交互作用显著！
+lavTestLRT(fit_constrained, fit_unconstrained)
+anova(fit_constrained, fit_unconstrained)
+```
+
+```{r}
+# ==========================================
+# 课堂演示：MANOVA 本质上就是多元线性回归模型
+# ==========================================
+library(car)
+library(lavaan)
+
+# 1. 生成模拟数据 (与之前相同)
+set.seed(123)
+N <- 200 
+group <- rep(c(0, 1), each = N/2) 
+score_time1 <- rnorm(N, mean = 50, sd = 10)
+score_time2 <- score_time1 + group * 5 + rnorm(N, mean = 0, sd = 5)  
+score_time3 <- score_time2 + group * 8 + rnorm(N, mean = 0, sd = 5)
+
+df_wide <- data.frame(group, score_time1, score_time2, score_time3)
+df_wide$diff21 <- df_wide$score_time2 - df_wide$score_time1
+df_wide$diff32 <- df_wide$score_time3 - df_wide$score_time2
+
+# ------------------------------------------------------------
+# 【演示 1：传统的 MANOVA 结果】
+# ------------------------------------------------------------
+cat("\n=== 1. 传统 MANOVA 检验结果 ===\n")
+fit_manova <- manova(cbind(diff21, diff32) ~ group, data = df_wide)
+summary(fit_manova, test = "Wilks") 
+# 请让学生记住这里的 F 值和 p 值！
+
+# ------------------------------------------------------------
+# 【演示 2：用线性回归 (lm) 实现 100% 数值一致的完美复刻】
+# ------------------------------------------------------------
+cat("\n=== 2. 多元线性回归 (lm) 完美等价演示 ===\n")
+# 写一个联合预测两个因变量的回归模型
+fit_lm <- lm(cbind(diff21, diff32) ~ group, data = df_wide)
+
+# 对回归模型进行“多元联合检验”(检验 group 系数是否全为 0)
+# 这一步直接等价于 MANOVA 的交互作用检验
+res_lm <- linearHypothesis(fit_lm, "group = 0", test = "Wilks")
+print(res_lm)
+# 💥 教学高光时刻：让学生对比，此时输出的 F 值、自由度和 p 值与上面的 MANOVA 绝对是一模一样的！
+# 结论：MANOVA = 允许残差相关的多元线性回归
+
+# ------------------------------------------------------------
+# 【演示 3：揭秘为什么 SEM (lavaan) 的 p 值会有一点点不同】
+# ------------------------------------------------------------
+cat("\n=== 3. 解密 lavaan 的底层算法差异 ===\n")
+
+model_sem <- '
+  diff21 ~ b1 * group
+  diff32 ~ b2 * group
+  diff21 ~~ diff32
+'
+fit_sem <- sem(model_sem, data = df_wide)
+
+# 提取线性回归的回归系数和标准误 (OLS算法)
+coef_lm <- summary(fit_lm)[[1]]$coefficients["group", c("Estimate", "Std. Error")]
+# 提取 lavaan 的回归系数和标准误 (ML算法)
+coef_sem <- parameterEstimates(fit_sem)[1, c("est", "se")]
+
+cat("OLS (线性回归) 的回归系数 (b1):", coef_lm["Estimate"], "\n")
+cat("ML  (lavaan) 的回归系数 (b1):", coef_sem$est, "\n")
+cat("-> 看到没？参数估计是 100% 完全相同的！\n\n")
+
+cat("OLS (线性回归) 的标准误 (SE):", coef_lm["Std. Error"], "\n")
+cat("ML  (lavaan) 的标准误 (SE):", coef_sem$se, "\n")
+cat("-> 注意！标准误开始出现微小差异了！\n\n")
+
+# 💥 数学魔法时刻：向学生展示两者的精确数学关系
+# OLS 方差的分母是 N-2（因为估计了截距和斜率2个参数），而 ML 的分母是 N
+# 所以: SE_ML = SE_OLS * sqrt( (N-2) / N )
+N_sample <- nrow(df_wide)
+k_params <- 2 # 截距 + group
+
+calculated_ml_se <- coef_lm["Std. Error"] * sqrt((N_sample - k_params) / N_sample)
+cat("手动把 OLS 的 SE 转换成 ML 的 SE:", calculated_ml_se, "\n")
+cat("这与 lavaan 输出的 SE 是不是一模一样？\n")
+```
+
+这段代码是向学生展示**“统计学大一统理论”**（广义线性模型，GLM）的绝佳素材！
+
+在基础统计课上，学生通常认为“方差分析（ANOVA/MANOVA）”和“回归分析（Regression）”是两套完全不同的体系（看均值差异 vs. 看自变量预测因变量）。但这段代码就是要打破这个认知壁垒。
+
+下面我为你详细拆解这一部分的理论知识，你可以直接将这些逻辑转化为上课的讲义。
+
+------------------------------------------------------------------------
+
+### 一、 这是什么模型？
+
+这个模型在统计学中被称为 **多元多重线性回归（Multivariate Multiple Linear Regression）**，或者直接属于 **多元广义线性模型（Multivariate GLM）**。
+
+- **“多重（Multiple）”**：通常指有多个自变量（X）。在这个例子中，虽然我们只有一个自变量（`group`），但该模型完全支持放入多个X。
+- **“多元（Multivariate）”**：这是最核心的区别！传统的线性回归（`lm(y ~ x)`）等号左边只有一个因变量（Y）。而在这段代码中，`cbind(diff21, diff32)` 把两个因变量“捆绑”成了一个矩阵。这意味着模型在**同时预测两个（或多个）因变量**。
+
+**结论**：当“多元线性回归”中的自变量（X）全部是**分类变量（Categorical Variables，如这里的 group）**时，这个回归模型在数学上就**100% 等价于 MANOVA**。MANOVA 只是多元线性回归的一个特例。
+
+------------------------------------------------------------------------
+
+### 二、 这个模型的底层原理是什么？
+
+为了给学生讲透，我们可以把原理分成三个递进的层次：
+
+#### 1. 联立回归方程（方程层面的原理）
+
+在代码 `fit_lm <- lm(cbind(diff21, diff32) ~ group, data = df_wide)` 运行的瞬间，计算机在后台其实平行地跑了两个回归方程： \* 方程 1： $diff21 = \beta_{0,a} + \beta_{1,a} \times group + \epsilon_a$ \* 方程 2： $diff32 = \beta_{0,b} + \beta_{1,b} \times group + \epsilon_b$
+
+**那么，这跟分别跑两次普通的单变量 `lm()` 有什么区别？** **核心机密在于“残差（**$\epsilon_a$ 和 $\epsilon_b$）”。在普通的两次 `lm()` 中，计算机认为两个方程互不干涉；但在 `cbind()` 打包的多元回归中，计算机假设：**这两个方程的残差是相关的（Correlated Errors）**。 因为这两个差异分数来自同一个学生/被试，模型不仅计算各自的误差方差，还计算它们之间的**协方差（Covariance）**。这正是 MANOVA 区别于多次 ANOVA 的灵魂。
+
+#### 2. 多元联合假设检验（检验层面的原理）
+
+代码 `linearHypothesis(fit_lm, "group = 0", test = "Wilks")` 在做什么？ 这叫做**多元一般线性假设检验（Multivariate General Linear Hypothesis Test, GLHT）**。
+
+- 在单变量回归中，你想知道 `group` 是否显著，就是检验 $H_0: \beta_{1} = 0$。
+- 在多元回归中，我们要进行的是**“联合检验（Joint Test）”**。你的假设指令 `"group = 0"`，实际上是在告诉计算机：“请帮我检验一个极其严苛的假设：**在这两个平行的方程里，`group` 的回归系数同时为 0 吗？**”
+  - 即 $H_0: \begin{bmatrix} \beta_{1,a} \\ \beta_{1,b} \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}$
+- 如果这个联合检验拒绝了零假设，意味着 `group` **作为一个整体**，至少对其中一个差异分数有显著影响。这就完美等价于 MANOVA 中的“组别主效应/交互作用”显著！
+
+#### 3. Wilks' Lambda ($\Lambda$) 的本质（矩阵层面的原理）
+
+为什么我们要用 `test = "Wilks"`？Wilks' Lambda 是怎么算出来的？这是学生最觉得像“黑盒”的地方。你可以用**“体积”**的比喻来解释：
+
+在单变量回归中，我们判断模型好坏看的是 $R^2 = 1 - \frac{残差平方和}{总平方和}$。 在多元回归中，所有的数据变成了**矩阵（Matrix）**： \* $\mathbf{E}$ 矩阵 (Error Matrix)：代表残差的平方和与交叉乘积（SSCP）矩阵。 \* $\mathbf{H}$ 矩阵 (Hypothesis Matrix)：代表被自变量（group）解释的平方和与交叉乘积（SSCP）矩阵。
+
+多元统计不能直接除以矩阵，所以统计学家取了矩阵的**行列式（Determinant，符号为** $|\mathbf{E}|$）。行列式的几何意义就是“多维空间中的方差体积”。
+
+**Wilks' Lambda 的公式极其优美：** $$ \Lambda = \frac{|\mathbf{E}|}{|\mathbf{H} + \mathbf{E}|} = \frac{残差方差的“体积”}{总方差的“体积”} $$
+
+- $\Lambda$ 的取值在 0 到 1 之间。
+- $\Lambda$ 越小，说明残差占比越少，自变量 `group` 解释的多元方差体积越大，模型越显著。
+- **它其实就是多元版本的** $1 - R^2$。
+
+最后，统计学家（如 Rao）推导出了一个转换公式，把这个 Wilks' Lambda 值完美地转换成了我们常见的 $F$ 统计量。这就是为什么 `linearHypothesis` 最终能输出跟 MANOVA 完全一样的 $F$ 值和 $p$ 值！
+
+------------------------------------------------------------------------
+
+### 三、 给老师的课堂教学隐喻（可以直接照搬）
+
+为了让学生秒懂这个代码逻辑，你可以讲这段话：
+
+> “同学们，传统 MANOVA 就像是一家**‘套餐餐厅’**（SPSS 里的菜单）。你点了一个‘重复测量套餐’，后厨一顿操作，直接给你端上来一个名叫 Wilks' Lambda 的菜。你只知道好吃（p \< 0.05），但不知道是怎么做出来的。
+>
+> 但今天，这段 R 代码带我们走进了**‘厨房’**。 `lm(cbind(...) ~ group)` 是我们在准备食材：我们自己用一条绳子（cbind）把两个因变量绑在一起，告诉烤箱（lm）同时烤，并且要保留它们串味的汁水（计算协方差）。
+>
+> 然后，`linearHypothesis("group = 0")` 是我们在亲手撒盐检验。我们在问：这把名叫 `group` 的盐，是不是在这个绑在一起的食材组上，完全没有起作用（系数全为0）？
+>
+> 最终出来的 $F$ 值和 $p$ 值，和套餐餐厅端出来的完全一样。这就证明了：**MANOVA 从来都不是一个独立的神奇统计方法，它不过就是因变量绑在一起的线性回归罢了！** 所有统计模型，归根结底，都是回归。”

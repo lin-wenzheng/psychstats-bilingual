@@ -1,0 +1,11 @@
+# 番外一：假设检验、偏相关、效应量与功效分析（待施工） {#sec-ecI .unnumbered}
+
+待施工。
+
+### power 有关的因素
+
+-   不要用median split, top and bottom 20%， data partition 等愚蠢的做法
+
+Effect size
+
+-   ![](images/clipboard-1854324854.png)

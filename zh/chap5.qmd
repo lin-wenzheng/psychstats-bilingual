@@ -1,0 +1,1666 @@
+# 灵根！修仙与魔法——多因素预测变量与交互作用（施工中）
+
+```{r}
+#| echo: false
+load("data/chapter4_env.RData")  # 继承所有对象
+library(ggplot2)
+```
+
+如果说，魔法世界的一切看起来都深邃、神秘，那一定是因为我们还没能接近魔法力量诞生的本质。探寻魔法力量的本质，或者一切超自然力量的本质，必然在那个魔法世界中是一个永恒的课题。魔法的能量来自哪里？魔法与物质世界的交互机制是什么？不同施法者的施法效果是否受他的主观感受、性格差异或者情绪状态影响？我愿把这门学科命名为魔法科学。
+
+好了，假设我们现在是一名魔法科学的研究者。随着魔法生产力的逐渐提高，我们和星球上其他地区的科研交流更加密切了起来。一个有意思的超自然研究领域获得了极大的关注，那就是修真。与魔法施法者与魔法元素直接沟通施放不同，东方独立发展出了另一套“修真”的超自然体系，在这一体系下，人们的超自然力量需要经过修炼。即先通过身体吸纳身边的魔法元素（也被称为灵气），进而使用灵气改造身体成为施法仪式的一部分。在这样的修炼体系下，人们发现一些人对某种或某几种魔法元素的吸纳效果显著高于其他魔法元素和其他人，这样的人被认为身具“灵根”。[^chap5-1]
+
+[^chap5-1]: 以上设定纯属根据看过的小说胡编，如有雷同，那就对了。
+
+![](images/clipboard-889461542.png)
+
+作为一个训练有素的魔法科学研究者，相信你一定会敏锐地察觉到，既然“灵根”与魔法元素的吸纳有关，而且是人与人修真能力评价个体差异的组成部分之一，那么它是否会影响我们一直关注的魔法天赋分数呢？
+
+为了探索这个课题，首先，我们还是要获得我们的数据。
+
+```{r}
+## 设定随机种子，保证你能用这段代码得到跟我一样的结果
+set.seed(233)
+## 生成被试ID
+ID <- c(1:500)
+## 我们的老朋友自我性别认同
+iden <- as.factor(c(rep("武装直升机",250),rep("某品牌塑料袋",250)))
+## 这次直接生成对应自我性别认同的哑变量编码
+iden_n <- c(rep(0,250),rep(1,250))
+## 灵根变量
+spirit_root <- as.factor(c(rep("无灵根",125),rep("有灵根",125),rep("无灵根",125),rep("有灵根",125)))
+## 灵根的哑变量编码
+spirit_root_n <- c(rep(0,125),rep(1,125),rep(0,125),rep(1,125))
+## 生成魔法天赋
+magic_score <- 70 + 10*iden_n + 10*spirit_root_n -10*iden_n*spirit_root_n + rnorm(n = 500, mean = 0, sd = 5)
+
+## 因为第一个数据框我们命名为df1,这里我们就命名为df2了
+df5.1 <- df5 <- data.frame(ID,iden,iden_n,spirit_root,spirit_root_n,magic_score)
+## 看看数据框长啥样
+head (df5.1)
+tail (df5.1)
+```
+
+我们同样也可以用小提琴图对这个数据进行可视化。
+
+```{r}
+#| echo: false
+#| warning: false    # 隐藏所有警告
+#| message: false    # 隐藏包加载信息
+ggplot(df5.1, aes(x = iden, y = magic_score, fill = spirit_root)) +
+  geom_violin(trim = FALSE, alpha = 0.7, position = position_dodge(0.8)) +
+  geom_boxplot(width = 0.1, position = position_dodge(0.8), show.legend = FALSE) +
+  scale_fill_manual(values = c("#66c2a5", "#fc8d62")) +  # 颜色自定义
+  labs(
+    title = "自我性别认同与灵根对魔法天赋的交互作用",
+    x = "自我性别认同",
+    y = "魔法天赋",
+    fill = "灵根状态"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+          
+```
+
+看到这样的描述统计，你认为灵根和自我性别认同这两个变量是如何影响魔法天赋分数的呢？
+
+## 踏上多因素之路
+
+现在，除了自我性别认同这个变量之外，我们有了另一个我们认为可能会影响魔法天赋分数的变量——灵根。如果你还记得，当我们只有一个自我性别认同变量的时候，我们做的方差分析叫做单因素方差分析。那么现在，我们有了两个因素，我们自然就是在进行双因素的分析。而根据人类大多数只擅长数到三的定律，大于等于三的因素分析我们一般就成为多因素分析。显然，双因素就是我们踏上多因素之路的第一步。
+
+### 主效应与主效应模型
+
+在前几章的实践中，我们探索了如何在一个线性回归模型中，检验自我性别认同对一个人的魔法天赋是否有显著的影响。用一样的方式，我们当然也可以在这个新的我们从神秘宇宙中获得的数据中检验我们的魔法科学问题。
+
+首先，我们可以检验自我性别认同对于魔法天赋分数的影响，就像我们前几章一直在做的一样。
+
+```{r}
+lm5.1 <- lm(magic_score~iden,df5.1)
+summary(lm5.1)
+```
+
+看上去，结果和我们之前检验出来的结果一样，机人相对于袋人更没有魔法天赋。
+
+那么，如果你认为“灵根”可能在冥冥中对一个人的魔法天赋有影响，我们应该如何检验这个魔法科学问题呢？自然而然的，我们也会想到复制上面的分析方式。
+
+```{r}
+lm5.2 <- lm(magic_score~spirit_root,df5.1)
+summary(lm5.2)
+```
+
+看上去似乎灵根对魔法天赋也有显著的影响，有灵根的人，魔法天赋也会更高一些。其实，到这里我们的问题看上去已经基本解决了？
+
+这取决于我们的研究假设。回到我们的第二章的内容 @sec-零假设显著性检验 ，我们的统计检验本质上是在用我们的样本数据，对我们的研究假设（备择假设）和零假设进行一个决策上的取舍。上面两个统计检验，就像我们在第四章中做的那样，是分别针对我们的两个变量，性别自我认同和灵根，对我们的因变量魔法天赋分数的影响的检验。问题在于，这是对两个魔法科学问题的检验。那么，它们并不属于一个研究，而是两个研究。[^chap5-2]
+
+[^chap5-2]: 注意，这里的叙述仅是在做逻辑上的分析。从研究方法的角度看，作为一个魔法科学的研究者，理想情况下你其实应该基于你的假设和理论去收集你所需要的变量，并进行对应的验证你假设的统计分析。而不是在收集了数据之后，再来考虑和尝试各种统计分析。
+
+有读者会说，这很简单啊，就像你在第四章里做的那样，既然一个三水平变量可以作为两个虚拟变量放进方程，那就把这两个变量一起放进线性方程里不就行了。
+
+```{r}
+lm5.3 <- lm(magic_score~iden+spirit_root,df5.1)
+summary(lm5.3)
+```
+
+如上，如果你是这么想的，那么恭喜你，你重新造出了一个叫做二元线性回归的轮子。就像我们之前说的，不管你是t检验、方差分析、相关、还是回归方程，都可以以一种线性模型的视角思考。那么这个二元线性回归，除了比一元线性回归贵了一元之外，也可以视为和双因素方差分析在某种程度上等价。而遵循着一样的数数能力限制，三元以上的线性回归，我们叫它们多元线性回归模型。
+
+如果你如我希望的，已经学过方差分析，你一定会知道一个词，叫做因素的主效应（main effect）。实际上上面的线性回归，就是对这两个变量或者我们叫因素的主效应的检验，也就是主效应模型。不过我们这么介绍有点鸡生蛋蛋生鸡的循环定义问题，所以主效应具体是什么呢？
+
+其实，在我们现在的模型里，如果你只看每个变量对应的回归系数，也就是他们的斜率数值，会发现其实每个变量单独做分析，和两个变量放在一起做二元回归，得到的回归系数都一样。如果你还记得我们在第四章做了什么，应该也会有印象，我们有意义的编码分类变量一般就是对平均数进行各种加减，而哑变量一般就是直接对于两个组的均值直接相减。
+
+那么，我们来看看平均数。
+
+```{r}
+## 每组的平均数
+df5.1_means <- aggregate(magic_score ~ iden + spirit_root, data = df5.1, FUN = mean)
+df5.1_means
+## 为了便于后面的计算，我们把这四个组均值重新命名成四个变量方便引用且易读
+M_bag_noroot <- df5.1_means[df5.1_means$iden=="某品牌塑料袋" & df5.1_means$spirit_root=="无灵根", "magic_score"]
+M_heli_noroot <- df5.1_means[df5.1_means$iden=="武装直升机" & df5.1_means$spirit_root=="无灵根", "magic_score"]
+M_bag_root <- df5.1_means[df5.1_means$iden=="某品牌塑料袋" & df5.1_means$spirit_root=="有灵根", "magic_score"]
+M_heli_root <- df5.1_means[df5.1_means$iden=="武装直升机" & df5.1_means$spirit_root=="有灵根", "magic_score"]
+```
+
+回顾我们的回归模型，自我性别认同对应的回归系数数值是 -5.3483,灵根对应的回归系数数值是4.5354。它们计算的是什么呢？不难发现[^chap5-3]：
+
+[^chap5-3]: 下面的计算前提是样本平衡，当然这就涉及到我们上一章最后提到的加权样本和不加权样本的差异了。
+
+```{r}
+## 机人均值-袋人均值
+(M_heli_noroot + M_heli_root)/2 - (M_bag_noroot + M_bag_root)/2
+## 有灵根人均值-无零根人均值
+(M_heli_root + M_bag_root)/2 - (M_heli_noroot + M_bag_noroot)/2 
+```
+
+看来，这两个回归系数，其实就是对应变量的组均值的差值，跟我们在第四章中使用哑变量时做的一样。
+
+## 几个人的努力才不是加法？——交互作用
+
+不过，比较回归系数，我们似乎忘记了截距啊？这三个回归模型的截距却是完全不同的。性别自我认同作为预测变量时，回归模型的截距是 80.4489；灵根作为预测变量时，截距是 75.5071；两者同时作为预测变量时，截距是 78.1812。前两个模型的截距，没有什么问题，跟我们上一章中的结果一样，对应的是在哑变量编码中我们选作参照水平（编码为0）的那一组的均值。
+
+```{r}
+## 袋人的魔法天赋分数均值
+(M_bag_noroot + M_bag_root)/2
+## 无灵根人的魔法天赋分数均值
+(M_heli_noroot + M_bag_noroot)/2 
+```
+
+但是，我们的第三个模型中的截距，对应的均值是什么呢？
+
+用一样的逻辑，它似乎应该对应的是两个哑变量编码都对应参照水平的那个组，也就是都编码为0的那一组的均值。也就是武装直升机+无灵根那一组的均值。但是我们可以看到，上面模型里的截距数值是78.1812，而武装直升机+无灵根组的平均值是70.50922。数值上相差的很多。那么，亲爱的读者们，你们觉得是什么原因呢？是我们的逻辑发生了错误，还是它其实对应着其他的平均值？
+
+好了，不为难大家了。其实我们不妨换一个角度考虑，如果找不到这个截距对应的平均数，也许并不是我们上面的推理出了问题，而是我们的模型本身出了问题？
+
+我们之前介绍过一些简单回归或者单因素方差分析模型的统计假设。在多元回归，也就是像我们这样的多个预测变量的回归中，统计上还有一个假设，叫做加法假设（Additive assumption）[^chap5-4]。什么意思呢，我们来看下面的公式。
+
+[^chap5-4]: 查询了中英文互联网上的资料，很多对于加法假设的描述都是错的，比如把它认为是一种多重共线性的体现。甚至很多回归方程的假设介绍中根本没有提及加法假设。
+
+$$
+y=b_0+b_1x_1+b_2x_2+e
+$$
+
+这是一个二元回归方程，我们上面的数据分析就可以写成这种形式，x~1~就是我们的性别自我认同，x~2~就是我们的灵根。如果我们的x~1~在数值上增加1呢？
+
+$$
+\tilde y=b_0+b_1(x_1+1)+b_2x_2+e
+$$
+
+把式子展开，就可以看出：
+
+$$
+\begin{align}
+\tilde y&=b_0+b_1x_1+b_1+b_2x_2+e\\
+\tilde y&=b_0+b_1x_1+b_2x_2+e+b_1\\
+\tilde y&=y+b_1
+\end{align}
+$$
+
+换句话说，理论上来说，x~1~每增加一个单位，y最终的数值就会对应地增加x~1~对应的回归系数。符合直觉，对吧？
+
+那么我们来看我们数据的描述统计。
+
+```{r}
+library(tidyr)
+df5_1_wide <- pivot_wider(
+  data = df5.1_means,
+  names_from = spirit_root, # 将这一列的值（有灵根/无灵根）变为新列名
+  values_from = magic_score # 用 magic_score 的值填充新列
+)
+df5_1_wide$iden <- c("iden=0；某品牌塑料袋","iden=1；武装直升机")
+print(df5_1_wide)
+```
+
+我们的x~1~，也就是自我性别认同 iden，在灵根的两个水平上从0到1的增加是我们的回归系数b~1~ （-5.3483）吗？
+
+```{r}
+M_heli_noroot-M_bag_noroot
+M_heli_root-M_bag_root
+
+```
+
+都不是，显然，现在的数据无法满足加法假设。其实观察不难发现，现在的回归系数，是对灵根的两个水平下自我性别认同的两个增加值求的平均。
+
+```{r}
+(M_heli_noroot-M_bag_noroot+M_heli_root-M_bag_root)/2
+```
+
+换句话说，由于加法假设无法满足，所以现有的模型拟合，只能对回归系数的估计，取一个平均值来表述一个一般情况。
+
+实际上，如果我们使用拟合出来的模型对四组的均值做预测，得到的结果是这样的。
+
+```{r}
+## 为了便于写预测代码，这里使用的是我们手动编码的值作为连续变量放入模型
+lm5.4 <- lm(magic_score~iden_n+spirit_root_n,df5.1)
+summary(lm5.4)
+## 我们自己编码的自我性别认同跟上面使用的回归方程的自动编码是相反的，懒得改了:P
+## 0=机人；1=袋人
+pred_data <- data.frame(
+  iden_n = c(1, 0, 1, 0),   
+  spirit_root_n = c(0, 0, 1, 1) 
+)
+
+pred_results <- predict(lm5.4, newdata = pred_data)
+pred_results
+
+```
+
+对比我们数据实际的均值，都不一样。实际上，你也许注意到了，我们上面预测出来的袋人无灵根组的均值，就是我们最开始做的lm5.3模型报告的截距。因为加法假设没有满足，所以整个回归方程对于组均值的预测全部出现了偏差！
+
+```{r}
+df5.1_means
+```
+
+更直观地来看这个加法假设没有被满足的情况，我们不妨重新画一个图，在这个图里，我们使用折线来展示我们的数据。
+
+```{r}
+#| echo: false
+#| warning: false    # 隐藏所有警告
+#| message: false    # 隐藏包加载信息
+library(dplyr)
+df_summary <- df5.1 %>%
+  group_by(iden, spirit_root) %>%
+  summarise(
+    mean_score = mean(magic_score, na.rm = TRUE),
+    se_score = sd(magic_score, na.rm = TRUE) / sqrt(n()) # 计算标准误
+  ) %>%
+  ungroup()
+
+```
+
+```{r}
+#| echo: false
+#| warning: false    # 隐藏所有警告
+#| message: false    # 隐藏包加载信息
+ggplot() +
+  # 1. 先画底层原始散点 (使用原始数据 df5.1)
+  geom_jitter(data = df5.1, aes(x = iden, y = magic_score, color = spirit_root), 
+              alpha = 0.3, width = 0.1) + 
+  
+  # 2. 画均值折线 (使用汇总数据 df_summary)
+  geom_line(data = df_summary, aes(x = iden, y = mean_score, color = spirit_root, group = spirit_root), 
+            size = 1) +
+  
+  # 3. 画均值点
+  geom_point(data = df_summary, aes(x = iden, y = mean_score, color = spirit_root), 
+             size = 4, shape = 18) + # 换个形状(18是菱形)以区分
+  
+  # 4. 误差棒
+  geom_errorbar(data = df_summary, aes(x = iden, ymin = mean_score - se_score, 
+                                       ymax = mean_score + se_score, color = spirit_root), 
+                width = 0.1, size = 1) +
+  
+  # 后续样式保持不变
+  scale_color_manual(values = c("#66c2a5", "#fc8d62")) +
+  labs(title = "自我性别认同与灵根不同组别的魔法天赋分布及均值图",
+       x = "自我性别认同", y = "魔法天赋", color = "灵根状态") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+还记得吗，我们的x~1~是性别自我认同，x~2~是灵根的话，加法假设的意思就是，不管我们的研究对象有灵根还是没有灵根，性别自我认同对魔法天赋分数的影响都是一样的（增加一个单位的x~1~,都同样增加一个相等的b~1~，也就是斜率）。这体现在我们的图上应该是什么样呢？是的，斜率相等，纵向上看，两个橙点之间的距离应该等于两个绿点之间的距离。换句话说，两条线应该彼此平行。
+
+显然，我们图中呈现的两条线并不平行。这违反了我们的加法假设，也就是为什么我们的模型对于组均值的估计不准确的主要原因。
+
+这时候，学过两因素以上方差分析的读者大概会一脸不屑。你写了这么久，说的这个现象不就是交互作用么。是的！如果你还记得我们这个小节的标题是什么的话，这就是我引入交互作用的方式。我想说的正是，加法假设的意思，其实就是变量之间不存在交互作用[^chap5-5]。
+
+[^chap5-5]: 或者调节作用，我会在下一章中介绍的概念。
+
+$$
+魔法天赋分数=b_0+b_1性别自我认同+b_2灵根
+$$
+
+如果我们认为性别自我认同对于魔法天赋分数的影响在有灵根和无灵根时不一样，这意味着什么呢？我们前面说了，在线性模型中，我们把回归系数，也就是变量的斜率，看作是预测变量对于结果变量的影响程度。那么，当存在交互作用，或者加法假设被违反时，这意味着预测变量对于结果变量的影响，也就是斜率，受到另一个变量的影响。有灵根时，性别自我认同的斜率是一个值，没有灵根时又是另外一个值了。换句话说，在我们的例子里，性别自我认同对于魔法天赋分数的影响，也就是它的斜率，受到灵根的影响。是不是感觉我在说绕口令？没关系，我们可以用优美简洁的数学来表达这件事。我们上面式子中的b~1~代表性别自我认同对于魔法天赋的影响，那么，性别自我认同对于魔法天赋分数的斜率受灵根影响可以表达为：
+
+$$
+b_1=b_3+b_4灵根
+$$
+
+也就是说，b~1~是一个受灵根预测的结果变量。我们不妨把b~1~代回原来的式子，整理一下可以得到：
+
+$$
+\begin{align}
+魔法天赋分数&=b_0+(b_3+b_4灵根)性别自我认同+b_2灵根\\
+魔法天赋分数&=b_0+b_3性别自我认同+b_4灵根\times 性别自我认同+b_2灵根
+\end{align}
+$$
+
+为了我们对回归系数的编码美观，我们可以调整一下回归系数的下标，写成：
+
+$$
+魔法天赋分数=b_0+b_1性别自我认同+b_2灵根+b_3灵根\times 性别自我认同
+$$
+
+不难看出，这个式子也可以看作灵根对魔法天赋的影响（斜率）受性别自我认同的影响：
+
+$$
+魔法天赋分数=b_0+b_1性别自我认同+(b_2+b_3性别自我认同)灵根
+$$
+
+这也是交互作用的意思，当两个预测变量存在交互作用时，它们对结果变量的影响是彼此互相作用的，也就是一个“交互”的作用。你可以看作是性别自我认同影响灵根对魔法天赋的影响，也可以看作是灵根影响自我性别认同对天赋的影响，这是一个一体两面的现象。
+
+构建出了上面的式子，就不难看出，在方程中加入两个变量的乘积项，就是检验交互作用的方法。我们实践一下：
+
+```{r}
+## 在数据中构建两个变量的乘积项
+df5.1$int_iden_root <- df5.1$iden_n*df5.1$spirit_root_n
+## 检验我们的模型
+lm5.5.1 <- lm(magic_score~iden_n+spirit_root_n+int_iden_root,df5.1)
+summary(lm5.5.1)
+
+
+```
+
+::: callout-tip
+## 补充：介绍几种R代码的写法
+
+我们上面的代码写法有些笨拙，显然这么常见的交互作用每次都要先从数据变量层面开始构建交互项太累了。所以我总结了一下我所知道的，比较简便的一些写法。
+
+```{r}
+## I(),括号内可以直接进行变量运算，会被当成一个完整的变量处理
+lm5.5.2 <- lm(magic_score~iden_n+spirit_root_n+I(iden_n*spirit_root_n),df5.1)
+summary(lm5.5.2)
+
+## 在R中，乘积项可以用:表征
+lm5.5.3 <- lm(magic_score~iden_n+spirit_root_n+iden_n:spirit_root_n,df5.1)
+summary(lm5.5.3)
+
+## 为什么不用*号呢，因为*有更高效的用途：iden_n*spirit_root就代表了上面式子的所有项了
+lm5.5.4 <- lm(magic_score~iden_n*spirit_root_n,df5.1)
+summary(lm5.5.4)
+```
+:::
+
+加入了交互项之后，我们线性模型拟合出的截距就是70.5092,跟我们哑变量编码设定的那个控制组就一致了。看来，之所以对截距的估计出现偏误，就是因为我们假设了加法假设成立，但实际数据却并不满足的关系。感兴趣的读者可以试试，用有交互项的模型向我们上面那样对各组均值预测，是否还有误差。
+
+如果你是一个好奇心足够旺盛的读者，现在可能已经拉到我们一开始的数据生成部分看过了。啊哈，你一开始生成数据的时候就加了交互项，当然会有这个问题了。那么，如果我们数据在生成时本身就不预设交互作用存在，会发生什么呢？我们来看看。
+
+```{r}
+## 生成一个新因变量数据，去掉交互项
+df5.1$magic_score2 <- 70 + 10*df5.1$iden_n + 10*df5.1$spirit_root_n  + rnorm(n = 500, mean = 0, sd = 5)
+
+```
+
+我们简单看一下新数据的描述统计。
+
+```{r}
+df5.1_means2 <- aggregate(magic_score2 ~ iden + spirit_root, data = df5.1, FUN = mean)
+df5.1_means2
+```
+
+```{r}
+#| echo: false
+#| warning: false    # 隐藏所有警告
+#| message: false    # 隐藏包加载信息
+library(dplyr)
+df_summary2 <- df5.1 %>%
+  group_by(iden, spirit_root) %>%
+  summarise(
+    mean_score = mean(magic_score2, na.rm = TRUE),
+    se_score = sd(magic_score2, na.rm = TRUE) / sqrt(n()) # 计算标准误
+  ) %>%
+  ungroup()
+
+```
+
+```{r}
+#| echo: false
+#| warning: false    # 隐藏所有警告
+#| message: false    # 隐藏包加载信息
+ggplot() +
+  # 1. 先画底层原始散点 (使用原始数据 df5.1)
+  geom_jitter(data = df5.1, aes(x = iden, y = magic_score2, color = spirit_root), 
+              alpha = 0.3, width = 0.1) + 
+  
+  # 2. 画均值折线 (使用汇总数据 df_summary)
+  geom_line(data = df_summary2, aes(x = iden, y = mean_score, color = spirit_root, group = spirit_root), 
+            size = 1) +
+  
+  # 3. 画均值点
+  geom_point(data = df_summary2, aes(x = iden, y = mean_score, color = spirit_root), 
+             size = 4, shape = 18) + # 换个形状(18是菱形)以区分
+  
+  # 4. 误差棒
+  geom_errorbar(data = df_summary2, aes(x = iden, ymin = mean_score - se_score, 
+                                       ymax = mean_score + se_score, color = spirit_root), 
+                width = 0.1, size = 1) +
+  
+  # 后续样式保持不变
+  scale_color_manual(values = c("#66c2a5", "#fc8d62")) +
+  labs(title = "自我性别认同与灵根不同组别的魔法天赋分布及均值图",
+       x = "自我性别认同", y = "魔法天赋", color = "灵根状态") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+很漂亮的两条平行线。多说一句，我们其实经常根据这样的折线图两条线有没有交叉来判断是否可能存在交互作用。
+
+不过，我们来看看截距的估计。
+
+```{r}
+lm5.6.1 <- lm(magic_score2~iden+spirit_root,df5.1)
+summary(lm5.6.1)
+
+```
+
+我们新生成的数据的袋人+无灵根组的实际均值是79.38925。上面的主效应模型的截距非常接近这个数值，但是终究不是相等的。那么，我们不妨来看看加了交互项之后的模型拟合结果。
+
+```{r}
+lm5.6.2 <- lm(magic_score2~iden*spirit_root,df5.1)
+summary(lm5.6.2)
+```
+
+看吧，这回是完全相等的了。这说明什么呢？即使在以没有交互为前提生成的数据下，加入交互项也是对数据均值最准确的估计。数据生成中加入的误差，也会一定程度上插足进两个变量的彼此交互作用中。
+
+为什么方差分析没有对应的假设呢？因为实际上一般的方差分析总是会分析所有交互作用，因此根本不存在需要满足加法假设的情况。但是协方差分析ANCOVA，就要求满足homogeneity of regression slopes。这一点，我们之后再说。[^chap5-6]
+
+[^chap5-6]: 留一个脚注以免我忘了。
+
+## 主效应与简单主效应
+
+好了，现在我们已经基本完成了验证我们研究假设所需要的线性模型的构建。lm5.5.1基本就是我们会使用的模型。不过目前输出的结果，还是以线性回归的方式完成的。而通常这种研究设计，我们习惯上还是以方差分析的方式来报告。接下来我们比较一下。首先是我们的回归结果。
+
+```{r}
+lm5.7 <- lm(magic_score~iden*spirit_root,df5.1)
+summary(lm5.7)
+```
+
+而在r中，默认报告方差分析的命令是anova()。我们来看看方差分析的结果。
+
+```{r}
+anova(lm5.7)
+```
+
+敏锐的读者肯定察觉到了，回归分析的结果，跟方差分析的结果好像并不一致。在回归分析中，灵根变量对应的回归系数并不显著。而在方差分析中，灵根因素的方差分析检验却是显著的，为什么呢？
+
+我们不妨回到哑变量编码[^chap5-7]。就像我们在第四章中做的一样，我们可以先列出我们的变量编码表，由于我们还有一个交互作用项，这一项的编码，就像我们之前使用代码生成它时做的那样，由组成它的编码变量相乘得到。
+
+[^chap5-7]: 这里我们使用的是我们之前手动做的编码，而非上面分析中R自动对分类变量进行的编码。换言之，对于性别自我认同的赋值是相反的。
+
+| 自我性别认同 | Iden_D | Spirit_root_D | Iden_D:Spirit_root_D |
+|--------------|--------|---------------|----------------------|
+| 机人+无灵根  | 0      | 0             | 0                    |
+| 机人+有灵根  | 0      | 1             | 0                    |
+| 袋人+无灵根  | 1      | 0             | 0                    |
+| 袋人+有灵根  | 1      | 1             | 1                    |
+
+如果你已经对第四章的内容稔熟于胸，不难写出下面关于每组预测值（平均数）与回归系数之间的关系。
+
+$$
+\begin{align*}
+\hat{y}_{\text{机人+无灵根}} &= b_0 \\
+\hat{y}_{\text{机人+有灵根}} &= b_0 + b_2 \\
+\hat{y}_{\text{袋人+无灵根}} &= b_0 + b_1 \\
+\hat{y}_{\text{袋人+有灵根}} &= b_0 + b_1 + b_2 + b_3
+\end{align*}
+$$
+
+接下来，我们还是解方程。不难得到：
+
+$$
+\begin{align*}
+b_0 &= \hat{y}_{\text{机人+无灵根}} \\
+b_1 &= \hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+无灵根}} \\
+b_2 &= \hat{y}_{\text{机人+有灵根}} - \hat{y}_{\text{机人+无灵根}} \\
+b_3 &= \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+有灵根}} + \hat{y}_{\text{机人+无灵根}}
+\end{align*}
+$$
+
+我们的b~1~和b~2~对应的组均值之间的关系是什么呢？b~1~对应的是，无灵根条件下，机人和袋人之间的均值差异。b~2~对应的是，机人条件下，有灵根和无灵根之间的均值差异。这是我们的主效应吗？看上去并不是。
+
+如果你还记得就在不久之前，我们提到过一个主效应模型。也就是在哑变量编码的情况下，不放入交互作用项的模型。换句话说，就是上面的编码表中，没有交互项那最后一列的情况。同样的，我们可以写出这个主效应模型的预测值与回归系数之间的关系：
+
+$$
+\begin{align*}
+\hat{y}_{\text{机人+无灵根}} &= b_0 \\
+\hat{y}_{\text{机人+有灵根}} &= b_0 + b_2 \\
+\hat{y}_{\text{袋人+无灵根}} &= b_0 + b_1 \\
+\hat{y}_{\text{袋人+有灵根}} &= b_0 + b_1 + b_2
+\end{align*}
+$$
+
+这组公式，我们有三个未知数，却有四个方程，我们不妨用前三个方程计算，易得：
+
+$$
+\begin{align*}
+b_0 &= \hat{y}_{\text{机人+无灵根}} \\
+b_1 &= \hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+无灵根}} \\
+b_2 &= \hat{y}_{\text{机人+有灵根}} - \hat{y}_{\text{机人+无灵根}}
+\end{align*}
+$$
+
+那么第四个方程怎么办呢，我们不妨把上面三个回归系数，代回最后一个式子，得到：
+
+$$
+\hat{y}_{\text{袋人+有灵根}}=\hat{y}_{\text{机人+无灵根}} + (\hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+无灵根}}) +(\hat{y}_{\text{机人+有灵根}} - \hat{y}_{\text{机人+无灵根}})
+$$ {#eq-int_dummy1}
+
+显然，这个等式不是一定成立的。怎么理解呢？我们可以通过图来直观的感受一下。
+
+```{r}
+#| echo: false
+#| warning: false    # 隐藏所有警告
+#| message: false    # 隐藏包加载信息
+# 提取均值以便后续绘图使用
+# y_g1: 塑料袋+无灵根, y_o1: 塑料袋+有灵根
+# y_g2: 直升机+无灵根, y_o2: 直升机+有灵根
+
+y_g1 <- df_summary$mean_score[df_summary$iden == "某品牌塑料袋" & df_summary$spirit_root == "无灵根"]
+y_o1 <- df_summary$mean_score[df_summary$iden == "某品牌塑料袋" & df_summary$spirit_root == "有灵根"]
+y_g2 <- df_summary$mean_score[df_summary$iden == "武装直升机" & df_summary$spirit_root == "无灵根"]
+y_o2 <- df_summary$mean_score[df_summary$iden == "武装直升机" & df_summary$spirit_root == "有灵根"]
+# 计算 b1 (左侧红色箭头) 的中心高度
+y_mid_b1 <- (y_g2 + y_g1) / 2
+# 计算 b2 (右侧蓝色箭头) 的中心高度
+y_mid_b2 <- (y_o2 + y_g2) / 2
+
+# 假设你的数据已经处理好，开始绘图
+ggplot() +
+  # 1. 底层原始散点
+  geom_jitter(data = df5.1, aes(x = iden, y = magic_score, color = spirit_root), 
+              alpha = 0.3, width = 0.1) + 
+  
+  # --- 核心补充：辅助线和箭头 ---
+  
+  # A. 黄色水平辅助线 (从左侧均值延伸到右侧)
+  geom_segment(aes(x = 0.9, xend = 2.1, y = y_o1, yend = y_o1), color = "grey", size = 1, linetype = "longdash") +
+  geom_segment(aes(x = 0.9, xend = 2.1, y = y_g2, yend = y_g2), color = "grey", size = 1, linetype = "longdash") +
+  # b0 标注在右侧 x=2 略偏下的位置
+  annotate("text", x = 2, y = y_g2-2, label = "b0", color = "grey", fontface = "bold", size = 5) +
+  
+  # B. 左侧垂直箭头 (示例：从 y=70 到均值)
+  # 红箭头
+  geom_segment(aes(x = 1, xend = 1, y = y_g2, yend = y_g1), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "red", size = 1) +
+  # b1 标注在左侧 x=1 略偏左的位置
+  annotate("text", x = 0.93, y = y_mid_b1, label = "b1", color = "red", fontface = "bold", size = 5) +
+  # 蓝箭头
+  geom_segment(aes(x = 1, xend = 1, y = y_g1, yend = y_o1), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "blue", size = 1) +
+  
+  # C. 右侧垂直箭头
+  # 蓝箭头
+  geom_segment(aes(x = 2, xend = 2, y = y_g2, yend = y_o2), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "blue", size = 1) +
+  # b2 标注在右侧 x=2 略偏右的位置
+  annotate("text", x = 2.07, y = y_mid_b2, label = "b2", color = "blue", fontface = "bold", size = 5) +
+  # 红箭头
+  geom_segment(aes(x = 2, xend = 2, y = y_o2, yend = y_o1), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "red", size = 1) +
+  
+  # --- 原有图层 ---
+  
+  # 2. 画均值折线
+  geom_line(data = df_summary, aes(x = iden, y = mean_score, color = spirit_root, group = spirit_root), 
+            size = 1) +
+  
+  # 3. 画均值点
+  geom_point(data = df_summary, aes(x = iden, y = mean_score, color = spirit_root), 
+             size = 4, shape = 18) + 
+  
+  # 4. 误差棒
+  geom_errorbar(data = df_summary, aes(x = iden, ymin = mean_score - se_score, 
+                                        ymax = mean_score + se_score, color = spirit_root), 
+                width = 0.1, size = 1) +
+  
+  scale_color_manual(values = c("#66c2a5", "#fc8d62")) +
+  labs(title = "自我性别认同与灵根不同组别的魔法天赋分布及均值图",
+       x = "自我性别认同", y = "魔法天赋", color = "灵根状态") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+这是我们之前绘制的折线图。b~0~是机人无灵根组的均值，我标示在了右下角，并且画了一根灰色虚线来表示它的均值水平。而上面等式的左边，是我们的袋人有灵根组的均值，我用图中上部的灰色虚线表示。要让等式相等，其实我们可以看作从b0这根起跑线出发，怎么能够到达袋人有灵根组均值的终点线。那么，后面的b1和b2代表什么呢？依照我们的推导，b1代表的是无灵根组的机人和袋人在魔法天赋上的差值，也就是图中旁边标示了b1的红色箭头；而b2代表的是机人组中，有灵根和无灵根在魔法天赋上的差异，也就是旁边标示了b2的蓝色箭头。那么，我们从b0出发，先跑过红色箭头表示的距离，再跑过蓝色箭头表示的距离，最终会准确抵达终点吗？显然，在图中的这种情况下是不会的，我们会跑过头非常多。
+
+所以，有这种情况吗？
+
+有的，朋友，有的。你还记得我们还假设过另一组数据吗？我们不妨看看它的图。
+
+```{r}
+#| echo: false
+#| warning: false    # 隐藏所有警告
+#| message: false    # 隐藏包加载信息
+# 提取均值以便后续绘图使用
+# y_g1: 塑料袋+无灵根, y_o1: 塑料袋+有灵根
+# y_g2: 直升机+无灵根, y_o2: 直升机+有灵根
+
+y_g1 <- df_summary2$mean_score[df_summary2$iden == "某品牌塑料袋" & df_summary2$spirit_root == "无灵根"]
+y_o1 <- df_summary2$mean_score[df_summary2$iden == "某品牌塑料袋" & df_summary2$spirit_root == "有灵根"]
+y_g2 <- df_summary2$mean_score[df_summary2$iden == "武装直升机" & df_summary2$spirit_root == "无灵根"]
+y_o2 <- df_summary2$mean_score[df_summary2$iden == "武装直升机" & df_summary2$spirit_root == "有灵根"]
+
+# 计算 b1 (左侧红色箭头) 的中心高度
+y_mid_b1 <- (y_g2 + y_g1) / 2
+# 计算 b2 (右侧蓝色箭头) 的中心高度
+y_mid_b2 <- (y_o2 + y_g2) / 2
+
+# 假设你的数据已经处理好，开始绘图
+ggplot() +
+  # 1. 底层原始散点
+  geom_jitter(data = df5.1, aes(x = iden, y = magic_score2, color = spirit_root), 
+              alpha = 0.3, width = 0.1) + 
+  
+  # --- 核心补充：辅助线和箭头 ---
+  
+  # A. 黄色水平辅助线 (从左侧均值延伸到右侧)
+  geom_segment(aes(x = 0.9, xend = 2.1, y = y_o1, yend = y_o1), color = "grey", size = 1, linetype = "longdash") +
+  geom_segment(aes(x = 0.9, xend = 2.1, y = y_g2, yend = y_g2), color = "grey", size = 1, linetype = "longdash") +
+  # b0 标注在右侧 x=2 略偏下的位置
+  annotate("text", x = 2, y = y_g2-2, label = "b0", color = "grey", fontface = "bold", size = 5) +
+  
+  # B. 左侧垂直箭头 
+  # 红箭头
+  geom_segment(aes(x = 1, xend = 1, y = y_g2, yend = y_g1), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "red", size = 1) +
+  # b1 标注在左侧 x=1 略偏左的位置
+  annotate("text", x = 0.93, y = y_mid_b1, label = "b1", color = "red", fontface = "bold", size = 5) +
+  # 蓝箭头
+  geom_segment(aes(x = 1, xend = 1, y = y_g1, yend = y_o1), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "blue", size = 1) +
+  
+  # C. 右侧垂直箭头
+  # 蓝箭头
+  geom_segment(aes(x = 2, xend = 2, y = y_g2, yend = y_o2), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "blue", size = 1) +
+  # b2 标注在右侧 x=2 略偏右的位置
+  annotate("text", x = 2.07, y = y_mid_b2, label = "b2", color = "blue", fontface = "bold", size = 5) +
+  # 红箭头
+  geom_segment(aes(x = 2, xend = 2, y = y_o2, yend = y_o1), 
+               arrow = arrow(length = unit(0.3, "cm")), color = "red", size = 1) +
+  
+  # --- 原有图层 ---
+  
+  # 2. 画均值折线
+  geom_line(data = df_summary2, aes(x = iden, y = mean_score, color = spirit_root, group = spirit_root), 
+            size = 1) +
+  
+  # 3. 画均值点
+  geom_point(data = df_summary2, aes(x = iden, y = mean_score, color = spirit_root), 
+             size = 4, shape = 18) + 
+  
+  # 4. 误差棒
+  geom_errorbar(data = df_summary2, aes(x = iden, ymin = mean_score - se_score, 
+                                        ymax = mean_score + se_score, color = spirit_root), 
+                width = 0.1, size = 1) +
+  
+  scale_color_manual(values = c("#66c2a5", "#fc8d62")) +
+  labs(title = "自我性别认同与灵根不同组别的魔法天赋分布及均值图",
+       x = "自我性别认同", y = "魔法天赋", color = "灵根状态") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+看上去是不是有成功的可能性了？观察一下就能大致判断，只要途中两个红色箭头的长度相等，两个蓝色箭头的长度也相等，我们就能准确地从起点抵达终点。而且不难判断，其实只要一种颜色的箭头长度相等，另一种颜色箭头的长度也必然相等。为什么呢？回到均值的视角。蓝色箭头分别代表有灵根和无灵根在自我性别认同的两个水平上的差异，即
+
+$$
+\hat{y}_{\text{机人+有灵根}}-\hat{y}_{\text{机人+无灵根}}=\hat{y}_{\text{袋人+有灵根}}-\hat{y}_{\text{袋人+无灵根}} 
+$$
+
+把等号左右的两项移项后不难得到
+
+$$
+\hat{y}_{\text{机人+有灵根}}-\hat{y}_{\text{袋人+有灵根}}=\hat{y}_{\text{机人+无灵根}}-\hat{y}_{\text{袋人+无灵根}} 
+$$
+
+这个等式意味着什么呢？红色的箭头相等，对吗？
+
+其实我们不妨回到\@eq-int_dummy1，整理一下其实不难得到
+
+$$
+\hat{y}_{\text{袋人+有灵根}}-\hat{y}_{\text{袋人+无灵根}} =\hat{y}_{\text{机人+有灵根}} - \hat{y}_{\text{机人+无灵根}}
+$$
+
+就是上面的式子，不是么？所以，这其实就是使用哑变量编码的主效应模型能够准确估计均值的条件。而我们知道，这个等式的要求，不就是加法假设的要求吗？b1如果要成为主效应，代表的就是灵根这个变量每增加1个单位，对应的魔法天赋就要增加b1,这一点不受自我性别认同的影响。所以不管是机人还是袋人，有灵根组减去无灵根组的差值要相等。是的，我们又再一次展示了加法假设的意义。
+
+::: callout-note
+## 引申：使用对比编码来检验交互作用
+
+不知道读者们有没有形成这样一种条件反射。我们上面罗列的三个式子，当然，本质是一个式子。看着这样一个等式的时候，会不会让你想起零假设的模样？是的，其实移一下项，不难得到：
+
+$$
+\hat{y}_{\text{袋人+有灵根}}-\hat{y}_{\text{袋人+无灵根}} -(\hat{y}_{\text{机人+有灵根}} - \hat{y}_{\text{机人+无灵根}})=0
+$$
+
+当然，也可以是：
+
+$$
+\hat{y}_{\text{袋人+有灵根}}-\hat{y}_{\text{机人+有灵根}} - (\hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+无灵根}})=0
+$$
+
+不知道这种写法有没有让你想起一位故人？是的，我写在小标题里了，对比编码。
+
+如果我们把自我性别认同和灵根这两个变量2\*2出来的四组人马看作一个单因素被试间设计，有四个水平。上面的这个等式就可以看作是一个对于这四个水平的均值差异比较的零假设。我们不妨实践一下。
+
+如果要进行对比编码检验上述零假设的话，我们需要三个虚拟变量，下面是对应的编码表。
+
+| 变量水平           | C1  | C2  | C3  |
+|--------------------|-----|-----|-----|
+| 武装直升机无灵根   | 1   | 1   | 0   |
+| 武装直升机有灵根   | -1  | 0   | 1   |
+| 某品牌塑料袋无灵根 | -1  | 0   | -1  |
+| 某品牌塑料袋有灵根 | 1   | -1  | 0   |
+
+c1就是我们要检验的假设。剩下两个我们生成对应的正交编码。我们在数据框中加入对应的编码变量。
+
+```{r}
+df5.1$group <- c(rep("武装直升机无灵根",125),
+                 rep("武装直升机有灵根",125),
+                 rep("某品牌塑料袋无灵根",125),
+                 rep("某品牌塑料袋有灵根",125))
+df5.1$c1 <- c(rep(1,125),
+                 rep(-1,125),
+                 rep(-1,125),
+                 rep(1,125))
+df5.1$c2 <- c(rep(1,125),
+                 rep(0,125),
+                 rep(0,125),
+                 rep(-1,125))
+df5.1$c3 <- c(rep(0,125),
+                 rep(1,125),
+                 rep(-1,125),
+                 rep(0,125))
+```
+
+然后我们检验一下结果。
+
+```{r}
+lm8.1 <- lm(magic_score~c1+c2+c3,df5.1)
+summary(lm8.1)
+```
+
+比较一下我们之前计算的交互作用结果。
+
+```{r}
+summary(lm5.5.4)
+```
+
+不管从模型拟合上（R^2^）还是c1的t分数上，我们都可以判断，这两个模型是一个等价的模型，而我们生成的对比编码，检验的就是交互作用是否显著这一假设。
+
+我想通过这个例子说明两件事：1. 对比编码是一个强大的工具。2.数据分析是一个非常灵活的过程，关键在于你对于背后的原理是否掌握。
+:::
+
+```{r}
+summary(lm5.4)
+```
+
+主效应应该是什么样的，我们不妨回到第四章。我们不仅使用了哑变量编码，还使用了另一种编码方式：效应编码。我们来看看效应编码的结果。
+
+```{r}
+df5.1$iden_ne <- car::recode(df5.1$iden_n,"1=1;0=-1")
+df5.1$spirit_root_ne <- car::recode(df5.1$spirit_root_n,"1=1;0=-1")
+```
+
+上面的代码把我们的哑变量编码转换成了新的效应编码。下表是效应编码的示意表，如果你忘了效应编码怎么做的话，不妨复习一下。
+
+| 自我性别认同 | Iden_E | Spirit_root_E | Iden_E:Spirit_root_E |
+|--------------|--------|---------------|----------------------|
+| 机人+无灵根  | -1     | -1            | 1                    |
+| 机人+有灵根  | -1     | 1             | -1                   |
+| 袋人+无灵根  | 1      | -1            | -1                   |
+| 袋人+有灵根  | 1      | 1             | 1                    |
+
+我们仍然可以得到一个方程组来表示斜率和对应组均值的关系：
+
+$$
+\begin{align}
+\hat y_{机人+无灵根}&=b_0-b_1-b_2+b_3\\
+\hat y_{机人+有灵根}&=b_0-b_1+b_2-b_3\\
+\hat y_{袋人+无灵根}&=b_0+b_1-b_2-b_3\\
+\hat y_{袋人+有灵根}&=b_0+b_1+b_2+b_3
+\end{align}
+$$
+
+求解，得到：
+
+$$
+\begin{align*}
+b_0 &= \frac{1}{4}\left(\hat{y}_{\text{机人+无灵根}} + \hat{y}_{\text{机人+有灵根}} + \hat{y}_{\text{袋人+无灵根}} + \hat{y}_{\text{袋人+有灵根}}\right) \\
+b_1 &= \frac{1}{4}\left(\hat{y}_{\text{袋人+无灵根}} + \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{机人+无灵根}} - \hat{y}_{\text{机人+有灵根}}\right) \\
+b_2 &= \frac{1}{4}\left(\hat{y}_{\text{机人+有灵根}} + \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{机人+无灵根}} - \hat{y}_{\text{袋人+无灵根}}\right) \\
+b_3 &= \frac{1}{4}\left(\hat{y}_{\text{机人+无灵根}}- \hat{y}_{\text{袋人+无灵根}} + \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{机人+有灵根}} \right)
+\end{align*}
+$$
+
+从求解的结果上看，b~0~对应的是我们的总均值。b~1~对应的是袋人和机人之间的组均值差异，也就是自我认同的主效应。b~2~对应的是有灵根组和无灵根组之间的组均值差异，也就是灵根的主效应。b~3~仍然是两个因素的交互作用。我们跑一下效应编码的回归模型，看看斜率的显著性检验结果是不是对应这几个检验。
+
+```{r}
+lm5.7.1 <- lm(magic_score~iden_ne*spirit_root_ne,df5.1)
+summary(lm5.7.1)
+```
+
+我们在对比一下方差分析的结果。
+
+```{r}
+library(car)
+Anova(lm5.7)
+## 运行anova(lm5.7.1)的结果也是一样的，读者们不妨自己测试一下
+```
+
+如果你还记得，F=t^2^的话。
+
+```{r}
+## 将效应编码回归方程结果中的t值平方
+summary(lm5.7.1)$coefficients[,"t value"]^2
+```
+
+显然，效应编码能很好的帮助我们得到一个跟方差分析完全一样的结果。而这个结果得到的主效应，也是跟我们的实际数据完全一致的。换言之，*如果你追求的是绝对的数据上的准确，在进行主效应检验时，应该使用效应编码加上交互项*。
+
+```{r}
+df5.1_means
+(M_heli_noroot+M_heli_root-M_bag_noroot-M_bag_root)/4
+(M_heli_root+M_bag_root-M_heli_noroot-M_bag_noroot)/4
+```
+
+而如果我们使用效应编码进行像我们在哑变量编码时所使用的类似的“主效应模型”检验。
+
+$$
+\begin{align*}\hat{y}_{\text{机人+无灵根}} &= b_0 - b_1 - b_2 \\\hat{y}_{\text{机人+有灵根}} &= b_0 - b_1 + b_2 \\\hat{y}_{\text{袋人+无灵根}} &= b_0 + b_1 - b_2 \\\hat{y}_{\text{袋人+有灵根}} &= b_0 + b_1 + b_2\end{align*}
+$$
+
+和之前哑变量编码时存在的问题一样，四个方程，但只有三个未知数，没有办法求解。
+
+进行回归检验会发现，其实结果和哑变量编码的主效应模型结果一样，同样也是一个跟实际数据有偏差的检验。而且两个斜率的t检验是一样的。
+
+```{r}
+lm5.7.2 <- lm(magic_score~iden_ne+spirit_root_ne,df5.1)
+summary(lm5.7.2)
+## 比较哑变量编码给出的主效应模型结果
+summary(lm5.4)
+```
+
+## 更复杂的多因素模型
+
+### 多水平因素
+
+不知道聪明的读者有没有想到一个问题，我们上面的例子，两个因素或者说分类变量，都只有两个水平。这种情况下，我们进行编码时，每个变量都只需要使用一个编码变量。如果有两个以上的水平时，就要涉及到多个编码变量。这时候不管是主效应对应的项，还是交互作用对应的项，都会变成好几个编码变量或者它们的乘积。这时候还怎么在回归方程中检验我们的主效应和交互作用呢？
+
+我们不妨来考虑一种情况。像我们在本章开头时说的，灵根是一些个体对元素亲和力高的体现。那么不同的个体对不同元素的亲和力有没有差异呢？我们暂时不考虑复合灵根（多灵根）的情况，只以主导灵根划分这些有灵根的人群，那么，根据元素的种类，我们可以把有灵根的人群划分为金木水火土五种灵根。那么显然，武装直升机与金属在概念上的紧密联系会让他们有更大的概率拥有金灵根；而袋人则更可能与各种灵根不亲和，表现为无灵根的人数更多。下面的数据里，我们也把空白人重新加了回来，让我们的数据变成了一个6\*3的研究设计。
+
+```{r}
+ID <- c(1:900)
+
+# 1. 随机生成 iden
+iden <- sample(c("武装直升机", "某品牌塑料袋", "空白人"), 900, replace = TRUE)
+
+# 2. 根据 iden 的不同，赋予完全不同的灵根概率，制造“强相关”（打破正交）
+spirit_root_detail <- character(900)
+for (i in 1:900) {
+  if (iden[i] == "武装直升机") {
+    # 武装直升机 极大概率是金灵根
+    spirit_root_detail[i] <- sample(c("无灵根", "金灵根", "木灵根", "水灵根", "火灵根", "土灵根"), 
+                                    1, prob = c(0.1, 0.7, 0.05, 0.05, 0.05, 0.05))
+  } else if (iden[i] == "某品牌塑料袋") {
+    # 塑料袋 极大概率无灵根
+    spirit_root_detail[i] <- sample(c("无灵根", "金灵根", "木灵根", "水灵根", "火灵根", "土灵根"), 
+                                    1, prob = c(0.8, 0.04, 0.04, 0.04, 0.04, 0.04))
+  } else {
+    # 空白人 概率均匀
+    spirit_root_detail[i] <- sample(c("无灵根", "金灵根", "木灵根", "水灵根", "火灵根", "土灵根"), 
+                                    1, prob = c(0.5, 0.1, 0.1, 0.1, 0.1, 0.1))
+  }
+}
+
+iden <- as.factor(iden)
+spirit_root_detail <- as.factor(spirit_root_detail)
+iden <- relevel(iden, ref = "空白人")
+spirit_root_detail <- relevel(spirit_root_detail, ref = "土灵根")
+
+# ---------------------------------------------------------
+# 3. 为多水平分类变量生成哑变量 (Dummy Variables)
+# ---------------------------------------------------------
+
+# iden 的哑变量 (武装直升机对应这两个变量全为0)
+iden_bag   <- ifelse(iden == "某品牌塑料袋", 1, 0)
+iden_heli <- ifelse(iden == "武装直升机", 1, 0)
+
+# spirit_root_detail 的哑变量 (无灵根对应这五个变量全为0)
+root_metal <- ifelse(spirit_root_detail == "金灵根", 1, 0)
+root_wood  <- ifelse(spirit_root_detail == "木灵根", 1, 0)
+root_water <- ifelse(spirit_root_detail == "水灵根", 1, 0)
+root_fire  <- ifelse(spirit_root_detail == "火灵根", 1, 0)
+root_earth <- ifelse(spirit_root_detail == "土灵根", 1, 0)
+
+# ---------------------------------------------------------
+# 4. 定义各变量主效应和交互效应，生成魔法得分
+# ---------------------------------------------------------
+
+# 基础分设定为 70 (即当所有哑变量为0时：空白人 + 无灵根)
+base_score <- 70
+
+# 性别认同主效应 (相比武装直升机：塑料袋天生+10分，武装直升机-5分)
+effect_iden <- 10 * iden_bag - 5 * iden_heli
+
+# 灵根主效应 (相比无灵根的加成得分)
+effect_root <- 10 * root_metal + 10 * root_wood + 12 * root_water + 
+  9 * root_fire  + 8 * root_earth
+
+# 交互效应 
+effect_interaction <- -8*iden_bag*(root_metal+root_wood+root_water+root_fire+root_earth)+10*root_metal*iden_heli
+
+# 合成最终魔法得分 (基础分 + 主效应 + 交互效应 + 随机误差)
+magic_score <- base_score + effect_iden + effect_root + effect_interaction + 
+  rnorm(n = 900, mean = 0, sd = 5)
+
+magic_score <- round(magic_score, 2)
+
+# 5. 组合成新的数据框
+df5.2 <- data.frame(
+  ID, 
+  iden, 
+  iden_bag, 
+  iden_heli, 
+  spirit_root_detail, 
+  root_metal, root_wood, root_water, root_fire, root_earth, 
+  magic_score
+)
+
+
+# 查看新数据框的前几行
+head(df5.2)
+
+# 验证一下分布情况（交叉表）
+table(df5.2$iden, df5.2$spirit_root_detail)
+```
+
+我们再看看描述统计。
+
+```{r}
+# 计算各组的均值和标准误 (Standard Error)
+df5.2_means <- df5.2 %>%
+  group_by(iden, spirit_root_detail) %>%
+  summarise(
+    mean_score = mean(magic_score),           # 计算均值
+    sd_score = sd(magic_score),               # 计算标准差
+    n = n(),                                  # 样本量
+    se_score = sd_score / sqrt(n),            # 计算标准误 (SE)
+    .groups = "drop"
+  )
+df5.2_means
+```
+
+```{r}
+#| echo: false
+#| warning: false    # 隐藏所有警告
+#| message: false    # 隐藏包加载信息
+
+
+# ==================== 3. 绘制图形 ====================
+# 定义一个偏移量，防止 6 组线条重叠在一起
+pd <- position_dodge(width = 0.3) # 稍微调小一点宽度，因为没有散点干扰了，0.3 比较紧凑美观
+
+ggplot() +
+  # 1. 均值折线
+  geom_line(data = df5.2_means, 
+            aes(x = iden, y = mean_score, color = spirit_root_detail, group = spirit_root_detail), 
+            linewidth = 1, position = pd) +
+  
+  # 2. 均值点
+  geom_point(data = df5.2_means, 
+             aes(x = iden, y = mean_score, color = spirit_root_detail), 
+             size = 4, shape = 18, position = pd) + 
+  
+  # 3. 误差棒
+  geom_errorbar(data = df5.2_means, 
+                aes(x = iden, ymin = mean_score - se_score, ymax = mean_score + se_score, color = spirit_root_detail), 
+                width = 0.15, linewidth = 1, position = pd) +
+  
+  # 4. 颜色与标签等主题设置
+  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#CC79A7")) +
+  labs(title = "自我性别认同与细分灵根组别的魔法天赋均值图",
+       x = "自我性别认同", 
+       y = "魔法天赋均值 (±SE)",  # 稍微修改了y轴标签使其更准确
+       color = "灵根状态") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+毕竟我们是想在回归方程中对主效应和交互作用做检验，那我们来看看方差分析的“正确”结果。
+
+```{r}
+lm5.8.0 <- lm(magic_score~iden*spirit_root_detail,df5.2)
+
+Anova(lm5.8.0)
+```
+
+我们在获得数据的时候，已经做好了变量的哑变量编码。自我性别认同我们编码为iden_bag和iden_heli两个虚拟变量，空白人作为参照水平。灵根我们编码为root_metal，root_wood，root_water，root_fire，root_earth，无灵根作为参照水平。自然我们可以把它们先放进线性模型里，看看结果怎么样。
+
+```{r}
+lm5.8.1 <- lm(magic_score~(iden_bag+iden_heli)*(root_metal+root_wood+root_water+root_fire+root_earth),df5.2)
+summary(lm5.8.1)
+```
+
+不出意料。回归模型给出了输入进模型的每个参数对应的系数和它们的显著性检验。我们可以用上面方差分析中给出的平方和计算一下方差分析模型的R^2^ 。
+
+$$
+R^2=\frac{SS_{模型解释变异}}{SS_{总变异}}
+$$
+
+```{r}
+## 组间变异
+sum(Anova(lm5.8.0)[1:3,1])
+## 总变异
+sum(Anova(lm5.8.0)[,1])
+## 组间变异/总变异
+sum(Anova(lm5.8.0)[1:3,1])/sum(Anova(lm5.8.0)[,1])
+```
+
+看上去，回归模型和方差分析模型是同一个模型。当然，我们在第四章已经论证过一遍了，只是现在在多个变量的模型中重新验证一下。
+
+### 模型比较
+
+所以，回到我们这个小节的开头，在灵根和自我性别认同这两个分类变量，因为编码的问题，被拆成这么多的编码变量时，我们要怎么检验他们的主效应以及交互作用呢？毕竟，我们研究假设中的概念变量并不是这些细碎的哑变量编码出来的变量呀？
+
+我们不妨再把目光放回上面我们刚刚计算过的R^2^ ，你还记得这个指标的实际意义是什么吗？在第三章中，我们介绍过，R对应的是回归模型的预测值和实际数据之间的相关；而R^2^ 对应的就是我们计算的模型总变异中，可以被模型解释的变异的比例。因此，这个指标被视为是反映模型拟合实际数据情况有多好的一个指标。
+
+不知道有没有读者看到这里的时候有疑惑，我来学的明明是统计，我都叫它们t检验分析，方差分析，回归分析，这个作者为什么老把模型模型的挂在嘴边，烦不烦啊，这到底是统计还是数据建模？
+
+模型本身是对数据趋势的一种描述。我们本书重点介绍的一般线性模型，就是以变量之间的关系是线性为前提，对他们的关系展开描述和检验。比如哑变量编码把可以分类变量的不同水平之间的组均值差作为斜率检验它们之间的差异。使用模型进行推论统计。[^chap5-8]
+
+[^chap5-8]: 当你使用建立好的模型，预测新数据时，这时候我们就是在使用模型做预测了。事实上，近年来挺火的各种学习其实也都是在基于数据建立各种模型并用它们进行数据的预测。所以机器学习领域更关注预测结果的准确率等指标。显然，预测要比描述困难的多。我们可以满足于对心理学变量大致方向的描述，而更关注变量之间的关系如何。但是在预测时，显然会希望预测得更加精准。当然，预测与学习的话题并不是这本书目前关注的主题。
+
+说回来，既然模型是对数据的一种描述，那么不同的模型就是对数据的不同描述方式。那是不是有的模型会对数据描述的更好，有的模型会对数据描述的更差一些呢？那么，什么指标能用来看一个模型拟合的好不好呢？
+
+巧了不是，我们刚说的 R^2^ 不就派上用场了。如果对同一批数据，存在两个模型对数据进行解释，这两个模型谁的R^2^高不就是谁解释的更好了吗？没毛病，那我们怎么比呢？看看上面的公式，假设我们的模型分别叫它们M1和M2。那么比较他们的拟合情况，我们可以把它们相减看看差值：
+
+$$
+R_{M1}^2-R_{M2}^2=\frac{SS_{M1解释变异}}{SS_{总变异}}-\frac{SS_{M2解释变异}}{SS_{总变异}}
+$$
+
+敏锐的读者应该注意到了，我在上面的式子里没有给总变异一个模型的下标。为什么呢？我们不妨回忆一下总变异是什么？是的，我们在第三章刚刚介绍过，总变异就是实际数据的方差，也就是每个实际数据与平均数之间差值的平方和。因此，只要数据的因变量不发生改变，在这个语境下的方差是不会变的。我们把上面那个 R^2^ 的差值记为ΔR^2^ [^chap5-9]，我们可以把上面的式子写为：
+
+[^chap5-9]: 希腊字母delta,别问为什么，来不及解释了，反正变化的量一般都这么记。
+
+$$
+\Delta R^2=\frac{SS_{M1解释变异}-SS_{M2解释变异}}{SS_{总变异}}
+$$
+
+如果你还记得第三章（ @sec-ANOVA&regression ）中我们对于在介绍 R^2^ 时提到了，使用summary() 对 lm() 的结果 进行报告，最后一行的F检验就是对 R^2^ 是否大于0的检验，即模型解释的变异在总变异中的比例是否显著大于零，本质还是在比较解释变异是否多于误差变异。因此，对于 ΔR^2^ 我们理论上也可以对它的显著性进行检验，也就是两个模型解释的变异之差是否多余误差带来的变异。
+
+$$
+F=\frac{MS_{模型差异}}{MS_{误差}}
+$$
+
+写到这里，不知道有没有读者反应过来我打算做什么。或者也许早就有读者知道这个思路，在默默嘲笑我来回废了这么多唾沫讲这么简单的道理。上面我们介绍的就是**模型比较**的思路，我们要用这个方法来帮助我们解决本节最开始提出的问题，怎么对一堆编码变量组成的分类变量，给出一个总的显著性检验。我们看下面两个回归模型，不过为了节省时间便于理解，我们只写出两个预测变量和它们的交互项：
+
+$$
+\begin{align}
+\hat y&=b_0+b_1iden+b_2spiritroot\\
+\hat y&=b_0+b_1iden+b_2spiritroot+b_3iden*spiritroot\\
+\end{align}
+$$
+
+通过比较这两个模型得到的 ΔR^2^ ，对它做F检验，是在检验什么呢？第二个模型相比第一个模型，多出的是两个变量的交互项。所以，这里对 ΔR^2^ 的检验，检验的就是在第一个模型的基础上，我们加入的交互项额外解释的变异是否显著。等等，这不就应该是对交互作用的检验吗？
+
+我们不妨拿我们的数据实操看看。
+
+```{r}
+## 第一个模型：只有主效应
+lm5.8.2 <- lm(magic_score~(iden_bag+iden_heli)+(root_metal+root_wood+root_water+root_fire+root_earth),df5.2)
+summary(lm5.8.2)
+
+## 第二个模型：加上交互项，我们之前做过了，直接拿过来看看
+summary(lm5.8.1)
+
+## 模型比较，使用anova()
+anova(lm5.8.2,lm5.8.1)
+```
+
+我们使用了 anova() 这个命令进行模型比较，这也是R里用于模型比较的最常见的命令了。接下来，我们看看结果是不是跟我们之前方差分析的结果一致。
+
+```{r}
+Anova(lm5.8.0)
+```
+
+看来没问题，我们的思路是对的。通过比较不同模型解释的变异差异，我们能够把两个模型间增加或减少的变量带来的变异解释差异分离出来，并对它们进行单独的检验。不过需要注意的是，能这么做的前提是这两个或者几个模型是**嵌套**的。嵌套的意思就是，一个模型的所有变量都完全包含在另一个模型中，我们就可以说，前者嵌套于后者。非嵌套模型的模型也可以比较，但是限制比较多，使用的标准也不一样，我们就不在这里赘述了。不过模型比较的方法和思想，在你们将来接触更复杂的统计模型或者机器学习模型时会更频繁的出现，加油哦。
+
+好了，上面我们通过模型比较检验了交互作用是否显著。那么主效应呢？有人要说了，这还不简单，一样也通过模型比较不就行了。确实，我们可以先写下一个变量的主效应对应的回归方程：
+
+$$
+\begin{align}
+\hat y&=b_0+b_1iden\\
+\end{align}
+$$
+
+那么，跟它进行比较的模型是什么呢？聪明的读者大概可以很快反应过来，把iden变成跟另一个模型相比多出来的部分就行了。没毛病，那么我们要比较的两个模型就是下面这样。
+
+$$
+\begin{align}
+\hat y&=b_0\\
+\hat y&=b_0+b_1iden\\
+\end{align}
+$$
+
+上面那个模型只有截距，所以我们一般管它叫截距模型。它作为最基础的对数据的描述经常被用于作为基线模型跟其他模型进行比较。首先我们构建我们要的截距模型。
+
+```{r}
+## 1在下面lm()的式子中代表截距，即用magic_score的总平均数做预测变量预测magic_score
+lm5.8.3.0 <- lm(magic_score~1,df5.2)
+summary(lm5.8.3.0)
+```
+
+观察这个截距模型的结果，不知道读者们有没有什么发现？既然叫截距模型，它的截距是什么呢？
+
+```{r}
+mean(df5.2$magic_score)
+```
+
+是的，截距模型的截距就是结果变量的平均数。换句话说，我们的截距模型，就是只使用一个数字（截距）对所有数据做预测。在最小二乘法的回归方程里，这个值显然就是平均数。所以截距模型其实就是一个用平均数预测结果的模型。
+
+换到模型比较的视角来看，任何基于截距模型增加变量的模型，其实就是在看新的模型相对于截距模型能解释的变异增加的情况。截距模型的变异是多少呢？
+
+```{r}
+anova(lm5.8.3.0)
+```
+
+不知道这个值有没有让大家眼熟的感觉。
+
+```{r}
+sum(Anova(lm5.8.0)[,1])
+```
+
+是的，截距模型对应的变异，其实就是结果变量的总方差，也就是整个数据的总变异，也是我们上面介绍的所有R2 的分母。如果我们基于截距模型，往里添加变量得到的解释变异的差异对应的是什么呢？
+
+```{r}
+anova(lm5.8.3.0,lm5.8.1)
+summary(lm5.8.1)
+```
+
+不难看出，我们的交互作用模型的模型解释变异对应的F检验，其实跟截距模型与交互作用模型比较得到的解释变异显著性检验是同一个检验。这点也不意外。但是，我想在这里说的是，如果使用方差分析，分解变异的角度来理解回归模型的模型比较的话，其实可以看成是，基于截距模型的总变异，不断加入新的变量解释变异，对数据的总变异进行切分的过程。其实方差分析也经常使用一个方程对变异分解进行描述，比如一个单因素方差分析：
+
+$$
+Y_{ij}=\mu+\tau_i+\epsilon_{ij}
+$$
+
+也就是原始数据 ($Y{ij}$ )的变异可以被视作原始分数离开平均数（$\mu$）的距离，那么这个变异有两个来源，一个是处理或者分组带来的变异（$\tau_i$），一个是每个个体的随机变异（$\epsilon_{ij}$）。这跟我们的回归方程是不是异曲同工？大家可以回到第三章去对比一下。所以截距模型作为一个线性模型基线的道理，大家相比现在就理解了。
+
+好了，回到正题，按照我们原来的思路，接下来是只有一个主效应变量的模型，有两个。
+
+```{r}
+lm5.8.3.1 <- lm(magic_score~iden_bag+iden_heli,df5.2)
+summary(lm5.8.3.1)
+lm5.8.3.2 <- lm(magic_score~root_metal+root_wood+root_water+root_fire+root_earth,df5.2)
+summary(lm5.8.3.2)
+```
+
+我们进行模型比较。首先是截距模型跟上面的两个只有一个变量的主效应项的模型进行比较。
+
+```{r}
+anova(lm5.8.3.0, lm5.8.3.1)
+anova(lm5.8.3.0, lm5.8.3.2)
+
+```
+
+跟我们之前“正确”的方差分析的结果比较一下呢？
+
+```{r}
+Anova(lm5.8.0)
+```
+
+观察两个因素对应的平方和，在直接比较截距模型跟一个主效应项模型得到的变异增加似乎并不是这个因素的主效应的变异啊？
+
+或者有同学不信邪，要看看只有主效应的方差分析模型？
+
+```{r}
+lm5.8.4 <- lm(magic_score ~ iden + spirit_root_detail, df5.2)
+Anova(lm5.8.4)
+```
+
+接下来是，只有一个主效应项的模型跟
+
+```{r}
+anova(lm5.8.3.1, lm5.8.2)
+anova(lm5.8.3.2, lm5.8.2)
+```
+
+## 三种平方和
+
+```{r}
+lm5.8.3.1 <- lm(magic_score~iden,df5.2)
+summary(lm5.8.3.1)
+lm5.8.3.2 <- lm(magic_score~spirit_root_detail,df5.2)
+summary(lm5.8.3.2)
+
+```
+
+```{r}
+#anova(lm5.8.3.0,lm5.8.3.1,lm5.8.4.1)
+anova(lm5.8.3.0,lm5.8.3.2)
+
+anova(lm5.8.3.3)
+```
+
+```{r}
+lm5.8.3.3 <- lm(magic_score~iden+spirit_root_detail, df5.2)
+anova(lm5.8.3.3)
+lm5.8.3.4 <- lm(magic_score~spirit_root_detail+iden, df5.2)
+anova(lm5.8.3.4)
+lm5.8.4.1 <- lm(magic_score~(iden_bag+iden_heli)+(root_metal+root_wood+root_water+root_fire+root_earth),df5.2)
+anova(lm5.8.4.1)
+lm5.8.4.2 <- lm(magic_score~(root_metal+root_wood+root_water+root_fire+root_earth)+(iden_bag+iden_heli),df5.2)
+anova(lm5.8.4.2)
+```
+
+其实分析一下，不难理解，这么比较，其实是我们本章一开始的做法，在不考虑另一个变量存在的情况下，当前变量的主效应。这显然不太对。那该怎么办呢？
+
+一个思路是，既然
+
+$$
+\begin{align}
+\hat y&=b_0+b_1spiritroot\\
+\hat y&=b_0+b_1iden\\
+\hat y&=b_0+b_1iden+b_2spiritroot\\
+\end{align}
+$$
+
+在开始实际用数据检验之前，我们不妨先考虑一下，上面那个只有b~0~ 截距的模型，是一个如何对数据进行解释的模型。首先，b~0~
+
+在公式里，第一个模型跟第二个模型
+
+//后面引入基线模型：平均数。
+
+```{r}
+lm5.8.0.0 <- lm(magic_score~1,df5.2)
+anova(lm5.8.0.0)
+sum(Anova(lm5.8.0)[,1])
+```
+
+```{r}
+summary(lm5.8.0.0)
+mean(df5.2$magic_score)
+```
+
+```{r}
+lm5.8.2 <- lm(magic_score~(iden_bag+iden_heli)+(root_metal+root_wood+root_water+root_fire+root_earth),df5.2)
+summary(lm5.8.2)
+```
+
+```{r}
+anova(lm5.8.2,lm5.8.1)
+```
+
+在一个基线模型的基础上
+
+```{r}
+anova(lm5.8.0)
+## 1在下面lm()的式子中代表截距，即用magic_score的总平均数做预测变量预测magic_score
+lm5.8.1.0 <- lm(magic_score~1,df5.2)
+anova(lm5.8.1.0, lm5.8.1)
+```
+
+```{r}
+sum(Anova(lm5.8.0)[,1])
+lm5.9.33 <- lm(magic_score~iden*spirit_root_detail,df5.2)
+sum(Anova(lm5.9.33)[,1])
+
+```
+
+嵌套模型。
+
+```{r}
+lm5.8.3 <- lm(magic_score~(iden_bag+iden_heli),df5.2)
+lm5.8.4 <- lm(magic_score~(root_metal+root_wood+root_water+root_fire+root_earth),df5.2)
+lm5.8.5 <- lm(magic_score~1,df5.2)
+summary(lm5.8.5)
+anova(lm5.8.5,lm5.8.3)
+anova(lm5.8.5,lm5.8.4)
+anova(lm5.8.3,lm5.8.2)
+anova(lm5.8.4,lm5.8.2)
+lm5.8.6 <- lm(magic_score~iden+spirit_root_detail,df5.2)
+Anova(lm5.8.6)
+```
+
+```{r}
+lm5.8.7 <- lm(magic_score~(iden_bag+iden_heli)+(iden_bag + iden_heli):(root_metal + root_wood + 
+root_water + root_fire + root_earth),df5.2)
+lm5.8.8 <- lm(magic_score~(root_metal+root_wood+root_water+root_fire+root_earth)+(iden_bag + iden_heli):(root_metal + root_wood + root_water + root_fire + root_earth),df5.2)
+anova(lm5.8.7,lm5.8.1)
+anova(lm5.8.8,lm5.8.1)
+lm5.8.9 <- lm(magic_score~iden*spirit_root_detail,df5.2, contrasts = list(iden = contr.sum, spirit_root_detail = contr.sum))
+summary(lm5.8.9)
+Anova(lm5.8.9,type=3)
+Anova(lm5.8,type=3)
+Anova(lm5.8)
+```
+
+```{r}
+df5.2 <- df5.2 %>%
+  mutate(
+    # iden 的效应编码
+    eff_iden_heli = ifelse(iden == "武装直升机", 1, ifelse(iden == "空白人", -1, 0)),
+    eff_iden_bag  = ifelse(iden == "某品牌塑料袋", 1, ifelse(iden == "空白人", -1, 0)),
+    
+    # spirit_root_detail 的效应编码
+    eff_root_metal = ifelse(spirit_root_detail == "金灵根", 1, ifelse(spirit_root_detail == "无灵根", -1, 0)),
+    eff_root_wood  = ifelse(spirit_root_detail == "木灵根", 1, ifelse(spirit_root_detail == "无灵根", -1, 0)),
+    eff_root_water = ifelse(spirit_root_detail == "水灵根", 1, ifelse(spirit_root_detail == "无灵根", -1, 0)),
+    eff_root_fire  = ifelse(spirit_root_detail == "火灵根", 1, ifelse(spirit_root_detail == "无灵根", -1, 0)),
+    eff_root_earth = ifelse(spirit_root_detail == "土灵根", 1, ifelse(spirit_root_detail == "无灵根", -1, 0))
+  )
+
+
+
+```
+
+```{r}
+contrasts(df5.2$iden)
+contrasts(df5.2$iden) <- contr.sum(3)
+
+contrasts(df5.2$iden)
+```
+
+模型比较的思想：结构方程模型、学习模型等。
+
+## 不平衡样本与三种平方和
+
+## 正交性与交互作用
+
+看上去差不多，对吗？我们不妨考虑一种情况。我们在上一章再次提及了样本容量不平衡带来的问题。这个问题显然也在多元回归或者多因素方差分析中存在，我们不妨重新构造我们的样本，让它不平衡，看看结果如何。
+
+```{r}
+## 去掉机人无灵根组里50个数据
+df5.2 <- df5.1[df5.1$ID>50,]
+```
+
+我们查看一下这个不平衡样本的平均数情况。
+
+```{r}
+df5.2_means <- aggregate(magic_score ~ iden + spirit_root, data = df5.2, FUN = mean)
+df5.2_means
+
+```
+
+对比一下原来的样本的描述统计数据。
+
+```{r}
+df5.1_means
+```
+
+确实只有去掉的组的平均数有些小的改变。接下来，我们做跟上面一样的分析
+
+```{r}
+lm5.7.1 <- lm(magic_score~iden*spirit_root,df5.2)
+summary(lm5.7.1)
+anova(lm5.7.1)
+```
+
+模型比较
+
+第三章
+
+```{r}
+anova(lm5.4,lm5.5.1)
+anova(lm5.6.1,lm5.6.2)
+```
+
+```{r}
+df5.2 <- df5.1[df5.1$ID>50,]
+df5.2_means <- aggregate(magic_score ~ iden + spirit_root, data = df5.2, FUN = mean)
+df5.2_means
+```
+
+```{r}
+lm5.4 <- lm(magic_score~iden+spirit_root,df5.2)
+lm5.4.1 <- lm(magic_score~iden,df5.2)
+lm5.4.2 <- lm(magic_score~spirit_root,df5.2)
+lm5.4.0 <- lm(magic_score~spirit_root+iden,df5.2)
+summary(lm5.4)
+anova(lm5.4)
+anova(lm5.4.0)
+anova(lm5.4.1,lm5.4)
+anova(lm5.4.2,lm5.4)
+car::Anova(lm5.4)
+```
+
+```{r}
+9.163^2
+7.583^2
+```
+
+https://md.psych.bio.uni-goettingen.de/mv/unit/lm_cat/lm_cat_unbal_ss_explained.html Note that no significant interaction is assumed (in other words, you should test for interaction first (SS(AB \| A, B)) and only if AB is not significant, continue with the analysis for main effects).
+
+```         
+If there is indeed no interaction, then type II is statistically more powerful than type III (see Langsrud [3] for further details).
+```
+
+::: callout-tip
+## Type III
+
+### 1. 必须修改对比方式 (Contrasts)
+
+这是最关键的一步。R 默认的对比方式是 `contr.treatment`（处理对比），这会导致自变量之间不具有正交性，从而使 Type III 的计算失去统计学意义。
+
+- **要求：** 必须将对比方式改为 `contr.sum`（总和对比）或 `contr.helmert`。
+
+### 2. 正确的代码实现步骤
+
+假设你的模型是 `magic_score ~ iden * spirit_root`，你应该按照以下流程操作：
+
+`library(car)  # 第一步：在建立模型时，显式指定 contrasts # 这一步是为了确保截距项和主效应在存在交互作用时能被正确分割 model_type3 <- lm(magic_score ~ iden * spirit_root,                    data = df5.1,                    contrasts = list(iden = contr.sum, spirit_root = contr.sum))  # 第二步：使用 car::Anova 并指定 type = 3 result <- Anova(model_type3, type = 3)  # 查看结果 print(result)}`
+
+简单来说：
+
+- **`contr.treatment` = Dummy Coding（哑变量编码 / 参照编码）**
+
+- **`contr.sum` = Effect Coding（效应编码 / 偏差编码）**
+
+为了让你彻底看清这两者如何影响 **Type III SS** 的结果，我们可以对比一下它们的内部机制：
+
+### 1. 哑变量编码 (Dummy Coding / `contr.treatment`)
+
+这是 R 的默认设置。它会选定一个基准组（Reference Group，通常是字母顺序第一的组）。
+
+- **系数含义：** 其他组与基准组之间的**差值**。
+
+- **为什么不适合 Type III：** 在包含交互项的模型里，如果你使用 Dummy Coding，主效应的 $F$ 检验其实是在检验“**当另一个变量处于基准水平时**，当前变量是否有影响”。这不符合 Type III 要求的“所有水平的平均影响”。
+
+### 2. 效应编码 (Effect Coding / `contr.sum`)
+
+它将各组的效应与\*\*全体均值（Grand Mean）\*\*进行比较。
+
+- **编码方式：** 最后一组被编码为 `-1`，其他组编码为 `1` 或 `0`。
+
+- **系数含义：** 该组均值偏离总均值的**程度**。
+
+- **为什么它是 Type III 的标配：** 在 Effect Coding 下，各因素的列之间是\*\*正交（Orthogonal）\*\*的。只有这样，当你计算某个因素的平方和时，才能真正做到“剔除掉交互项和其他所有项的影响”，得到干净的主效应贡献。
+:::
+
+## 两因素方差分析
+
+回归，简单主效应与主效应。
+
+```{r}
+lm5.1 <- lm(magic_score~iden,df5.1)
+summary(lm5.1)
+```
+
+```{r}
+lm5.1 <- lm(magic_score~spirit_root,df5.1)
+summary(lm5.1)
+```
+
+```{r}
+lm5.2 <- lm(magic_score~iden+spirit_root,df5.1)
+summary(lm5.2)
+```
+
+```{r}
+# set.seed(233)
+# df5.1 <- df5 |> 
+#   group_by(iden, spirit_root) |> 
+#   slice_sample(n = if (first(iden) == "武装直升机") 100 else 125) |> 
+#   ungroup()
+# 
+# table(df5.1$iden, df5.1$spirit_root)
+```
+
+```{r}
+# set.seed(233)
+# df5.1.frag1 <- slice_sample(df5[df5$iden_n==0 & df5$spirit_root_n==1,],n=50,replace=F)
+# set.seed(233)
+# df5.1.frag2 <- slice_sample(df5[df5$iden_n==0 & df5$spirit_root_n==0,],n=75,replace=F)
+# df5.1 <- rbind(df5.1.frag1,df5.1.frag2,df5[df5$iden_n==1,])
+# table(df5.1$iden, df5.1$spirit_root)
+```
+
+```{r}
+lm5.4 <- lm(magic_score~spirit_root+iden,df5.1)
+summary(lm5.4)
+```
+
+```{r}
+anova(lm5.4)
+anova(lm5.2)
+```
+
+```{r}
+lm5.5.1 <- lm(magic_score~spirit_root,df5.1)
+lm5.5.2 <- lm(magic_score~spirit_root*iden,df5.1)
+lm5.6.1 <- lm(magic_score~iden,df5.1)
+lm5.6.2 <- lm(magic_score~iden*spirit_root,df5.1)
+lm5.6.3 <- lm(magic_score~iden*spirit_root,df5.1,contrasts=list(iden=contr.sum, spirit_root=contr.sum))
+anova(lm5.5.2)
+anova(lm5.6.2)
+car::Anova(lm5.6.2,type=3)
+car::Anova(lm5.6.2,type=3,contrasts=list(iden=contr.sum, spirit_root=contr.sum))
+car::Anova(lm5.6.3,type=3)
+car::Anova(lm5.5.2)
+```
+
+when data is balanced, the factors are orthogonal, and types I, II and III all give the same results.
+
+The answer depends on whether your intention in a contrast is to treat means as having equal import regardless of group size (n), which is the unweighted means approach, or to weight means relative to their sample size, which of course, is a weighted means approach.
+
+For an unweighted means approach, two contrasts are orthogonal if the sum of coefficient product terms, across groups, equals zero: e.g., c11c21 + c12c22 + ... + c1kc2k = 0 (where cij is the coefficient used for the i-th contrast and j-th group).
+
+For a weighted means approach, two contrasts are orthogonal if: n1c11c21 + n2c12c22 + ... + nkc1kc2k = 0 (where cij is defined as above and nj is the sample size for group j).
+
+In many experimental designs, the usual intention of behind a contrast is to compare means as having equal import regardless of group size. Therefore (using cij and nj as defined above):
+
+SS(contrast i) = (ci1\*M1 + ci2M2 + ... + cikMk)\^2 / (ci1\^2/n1 + ci2\^2/n2 + ... + cik\^2/nk) (where Mj is the mean for group j)
+
+Here's a link that walks through a worked example: [https://www.uvm.edu/\~statdhtx/StatPages/Unequal-ns/Unequal_n's_contrasts.html](https://www.researchgate.net/deref/https%3A%2F%2Fwww.uvm.edu%2F~statdhtx%2FStatPages%2FUnequal-ns%2FUnequal_n's_contrasts.html?_tp=eyJjb250ZXh0Ijp7ImZpcnN0UGFnZSI6InF1ZXN0aW9uIiwicGFnZSI6InF1ZXN0aW9uIn19)
+
+Finally, B. J. Winer's 1971 text, Statistical principles in experimental design (2nd ed.). also addresses the issue.
+
+Good luck with your work.
+
+<https://www.researchgate.net/post/How_are_orthogonal_contrasts_selected_in_case_of_unequal_sample_sizes>
+
+```{r}
+aov5.1 <- aov(magic_score~iden*spirit_root,df5.1)
+summary(aov5.1)
+car::Anova(aov5.1)
+```
+
+## 交互作用的构造
+
+交互与相关不同。
+
+正交；axb=0；a\*b\*c=0,axb=0,axc=0,bxc=0
+
+```{r}
+## 设定随机种子，保证你能用这段代码得到跟我一样的结果
+set.seed(233)
+## 生成被试ID
+ID <- c(1:500)
+## 我们的老朋友自我性别认同
+iden <- as.factor(c(rep("武装直升机",250),rep("某品牌塑料袋",250)))
+## 这次直接生成对应自我性别认同的哑变量编码
+iden_n <- c(rep(0,250),rep(1,250))
+## 灵根变量
+spirit_root <- as.factor(c(rep("无灵根",125),rep("有灵根",125),rep("无灵根",125),rep("有灵根",125)))
+## 灵根的哑变量编码
+spirit_root_n <- c(rep(0,125),rep(1,125),rep(0,125),rep(1,125))
+## 生成魔法天赋
+magic_score <- 70 + 10*iden_n + 10*spirit_root_n + rnorm(n = 500, mean = 0, sd = 5)
+
+## 因为第一个数据框我们命名为df1,这里我们就命名为df2了
+df2.2 <- data.frame(ID,iden,iden_n,spirit_root,spirit_root_n,magic_score)
+```
+
+```{r}
+ggplot(df2.2, aes(x = iden, y = magic_score, fill = spirit_root)) +
+  geom_violin(trim = FALSE, alpha = 0.7, position = position_dodge(0.8)) +
+  geom_boxplot(width = 0.1, position = position_dodge(0.8), show.legend = FALSE) +
+  scale_fill_manual(values = c("#66c2a5", "#fc8d62")) +  # 颜色自定义
+  labs(
+    title = "自我性别认同与灵根对魔法天赋的交互作用",
+    x = "自我性别认同",
+    y = "魔法天赋",
+    fill = "灵根状态"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+```{r}
+lm5.2 <- lm(magic_score~iden*spirit_root,df2.2)
+summary(lm5.2)
+```
+
+::: {.callout-note icon="false"}
+## 从另一个角度重新理解正交编码
+:::
+
+## 编码
+
+\$\$ \begin{align}
+
+\end{align} \$\$
+
+## 简单效应检验
+
+```{r}
+lm5.2 <- lm(magic_score~iden_n*spirit_root_n,df5.1)
+summary(lm5.2)
+```
+
+```{r}
+aov2.1 <- lm(magic_score~iden*spirit_root,df5.1)
+car::Anova(aov2.1)
+```
+
+```{r}
+library(phia)
+testInteractions(aov5.1, fixed="iden", across = "spirit_root", adjsutment="none")
+testInteractions(aov5.1, fixed="spirit_root", across = "iden", adjsutment="none")
+```
+
+## 更多因素、更多水平，尽在多因素方差分析
+
+大五灵根模型。
+
+::: callout-note
+## 对比编码
+
+这是一个非常细致的问题。简单来说：**`contr.helmert` 属于效应编码（Effect Coding）的一种大类，但它与 `contr.sum` 的具体逻辑完全不同。**
+
+如果说 `contr.sum` 是把每一组与“整体平均值”比，那么 `contr.helmert` 就是在做“**阶梯式对比**”。
+
+### 1. `contr.helmert` 的核心逻辑：分层累积比较
+
+Helmert 编码的特点是：**将当前的水平（Level）与之前所有水平的平均值进行比较。**
+
+假设你的变量有三个水平：A、B、C。
+
+- **第一个对比：** B vs. A
+
+- **第二个对比：** C vs. (A 和 B 的平均值)
+
+- **第三个对比（如果有 D）：** D vs. (A, B, C 的平均值)
+
+### 2. 它与 `contr.sum` (Standard Effect Coding) 的区别
+
+|  |  |  |
+|----|----|----|
+| **特性** | **contr.sum (偏差编码)** | **contr.helmert (Helmert 编码)** |
+| **比较基准** | 所有组的**总平均值** (Grand Mean) | **之前所有组**的平均值 |
+| **适用场景** | 想知道某一组是否偏离整体平均水平。 | 变量具有**某种顺序**或**累积性质**时（如受教育程度、实验处理的递进）。 |
+| **正交性** | **正交**（在各组样本量相等时） | **完全正交**（各组样本量相等时） |
+| **对 Type III 的支持** | **支持**，是标准的 Type III 做法。 | **支持**，因为它是正交编码，能正确分割平方和。 |
+
+### 3. 为什么 Helmert 编码也支持 Type III？
+
+之所以你在某些教材中看到 `contr.helmert` 也能配合 Type III SS 使用，是因为它满足了 **正交性（Orthogonality）** 的要求。
+
+在方差分析中，只要编码是正交的，截距项、主效应和交互项对应的设计矩阵列就是相互独立的。这样，Type III SS 在剔除其他项的影响时，不会把属于该项的变异给“误杀”掉。
+
+|          |                     |                          |
+|----------|---------------------|--------------------------|
+| **水平** | **对比 1 (B vs A)** | **对比 2 (C vs AB平均)** |
+| **A**    | -1                  | -1                       |
+| **B**    | 1                   | -1                       |
+| **C**    | 0                   | 2                        |
+
+### 4. 什么时候用 `contr.helmert` 而不是 `contr.sum`？
+
+虽然两者都能让 `car::Anova(type = 3)` 跑出正确的 $F$ 检验和 $P$ 值，但它们对\*\*回归系数（Coefficients）\*\*的解释完全不同：
+
+- **如果你关注整体偏离：** 选 `contr.sum`。比如你想看“金灵根”是否比“平均水平”更强。
+
+- **如果你关注递进效果：** 选 `contr.helmert`。比如你的自变量是“修炼等级”（初级、中级、高级），你想看“高级”是否比“初级和中级的平均水平”有显著质变。
+:::
+
+```{r}
+#| echo: false
+# 储存环境变量
+save.image("data/chapter5_env.RData")  # 保存完整环境）
+```

@@ -1,0 +1,12 @@
+name: psych_stats_unhurried_multilingual
+title: Psych_Stats_Unhurried_Multilingual
+username: linwz
+account: linwz
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a0e7a7-104b-1221-f419-97aa322dfa97
+bundleId:
+url: https://connect.posit.cloud/linwz/content/01a0e7a7-104b-1221-f419-97aa322dfa97
+version: 1
+asMultiple: FALSE
+asStatic: TRUE

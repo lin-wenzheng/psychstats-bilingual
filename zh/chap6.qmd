@@ -1,0 +1,126 @@
+# 天下第一武道会！修仙+魔法=战斗？——连续预测变量的调节（待施工）
+
+不关心交互作用。
+
+## 控制变量
+//过拟合
+
+## 偏相关与半偏相关
+
+从数据或者统计的角度上说，我们也可以这么来看这个问题：根据上面的统计结果，基于自我性别认同的线性模型对于魔法天赋分数的变异解释率17.58%（也就是R^2^）；而基于灵根而线性模型，其变异解释率是12.64%。那么，当它们两个共同预测魔法天赋分数时，是不是共同解释了17.58%+12.64%=30.22%的变异呢？
+
+```{r}
+lm5.3 <- lm(magic_score~iden+spirit_root,df5.1)
+summary(lm5.3)
+```
+
+<!--# 是不是要考虑交互作用跟两变量之间相关的关系问题 -->
+
+### 偏相关与半偏相关
+
+我们在第三章 @sec-cor 介绍了相关这一概念。我们知道了，两水平的分类变量可以使用编码作为连续变量通过皮尔逊积差公式计算相关。当时，我们考虑的是两个变量的关系。现在，我们有了三个变量，那么要怎么考虑这三个变量之间的关系呢？
+
+我们可以用一个常见的相关矩阵来看这三个变量的关系。
+
+```{r}
+# Correlation matrix of iden, spriit root, and magic score
+
+apaTables::apa.cor.table(
+ df5.1[,c("iden_n", "spirit_root_n", "magic_score")],
+ #filename = "study1_cor.rtf",
+ #table.number = 1,
+ show.conf.interval = FALSE,
+ show.sig.stars = TRUE,
+ landscape = TRUE
+)
+```
+
+
+
+首先，一个直观的问题是，灵根对魔法天赋的影响，有多少跟自我认同重叠呢？我们上面的两个检验，哪怕不考虑一类错误，也是分别检验性别自我认同和灵根各自对魔法天赋分数的影响。但是，
+
+
+
+
+
+```{r}
+cor(df5.1$magic_score,df5.1$iden_n)
+cor(df5.1$magic_score,df5.1$spirit_root_n)
+lm5.2 <- lm(scale(magic_score)~scale(spirit_root_n)+scale(iden_n),df5.1)
+summary(lm5.2)
+```
+
+```{r}
+library(ppcor)
+pcor.test(df5.1$magic_score,df5.1$iden_n,df5.1$spirit_root_n)
+pcor.test(df5.1$iden_n,df5.1$magic_score,df5.1$spirit_root_n)
+pcor.test(df5.1$magic_score,df5.1$spirit_root_n,df5.1$iden_n)
+lm5.1 <- lm(magic_score~spirit_root_n,df5.1)
+lm5.2 <- lm(iden_n~spirit_root_n,df5.1)
+cor.test(resid(lm5.1),resid(lm5.2))
+lm5.3 <- lm(magic_score~iden_n,df5.1)
+lm5.4 <- lm(spirit_root_n~iden_n,df5.1)
+cor.test(resid(lm5.3),resid(lm5.4))
+
+
+```
+
+两个检验的相关系数相等，但t值存在微小差异，主要原因在于**自由度（degrees of freedom）的计算不同**，这直接影响t值的计算公式。下面逐步解释原因。
+
+### 1. **相关系数为什么相等**
+
+-   第一个检验 `cor.test(resid(lm5.1), resid(lm5.2))` 计算的是两个回归模型残差的简单Pearson相关系数。其中：
+    -   `resid(lm5.1)` 是剔除 `spirit_root_n` 对 `magic_score` 的线性影响后的残差。
+    -   `resid(lm5.2)` 是剔除 `spirit_root_n` 对 `iden_n` 的线性影响后的残差。
+-   第二个检验 `pcor.test(df5.1$iden_n, df5.1$magic_score, df5.1$spirit_root_n)` 计算的是偏相关系数（partial correlation），即在控制变量 `spirit_root_n` 后，`iden_n` 与 `magic_score` 之间的相关性。
+-   **数学等价性**：偏相关系数的定义正是控制某个变量后，两个变量的残差之间的相关系数。因此，两个检验的相关系数估计值必然相等（均为 `0.4486231`）。
+
+### 2. **t值为什么有微小差异**
+
+t值的计算公式为： $$
+t = r \sqrt{\frac{\text{df}}{1 - r^2}}
+$$
+
+其中 ( r ) 是相关系数，( \text{df} ) 是自由度。关键差异在于自由度的确定： - **在简单相关检验（`cor.test`）中**： - 自由度公式为 ( \text{df} = n - 2 )，其中 ( n ) 是样本量。 - 你的数据中 ( n = 500 )（因为输出显示 `df = 498`），所以自由度是 ( 500 - 2 = 498 )。 - 计算过程：\
+( r = 0.4486231 )，( r\^2 \approx 0.2013 )，\
+( t = 0.4486231 \times \sqrt{\frac{498}{1 - 0.2013}} \approx 0.4486231 \times 24.97 \approx 11.202 )。
+
+-   **在偏相关检验（`pcor.test`）中**：
+    -   自由度需考虑控制变量的数量。一般公式为 ( \text{df} = n - k - 2 )，其中 ( k ) 是控制变量的个数（这里 ( k = 1 )）。
+    -   因此自由度是 ( 500 - 1 - 2 = 497 )。
+    -   计算过程：\
+        ( t = 0.4486231 \times \sqrt{\frac{497}{1 - 0.2013}} \approx 0.4486231 \times 24.944 \approx 11.191 )，与输出中的 `11.19071` 一致。
+
+### 3. **根本原因：自由度不同**
+
+-   `cor.test` 直接对残差进行检验，未考虑这些残差本身来自回归模型（已消耗了自由度）。它将残差视为原始数据，使用 ( n - 2 ) 的自由度。
+-   `pcor.test` explicitly 考虑了控制变量的影响，使用调整后的自由度 ( n - k - 2 )，更符合偏相关的统计假设。
+-   自由度的微小差异（498 vs 497）通过平方根放大，导致t值的微小不同。
+
+### 4. **统计建议**
+
+-   偏相关检验（`pcor.test`）的自由度处理更准确，因为它校正了控制变量带来的参数估计不确定性。在需要控制混杂因素时，应优先使用偏相关结果。
+-   两个检验的p值均非常显著（\< 2.2e-16），因此尽管t值有微小差异，不影响结论的本质：在控制 `spirit_root_n` 后，`iden_n` 与 `magic_score` 仍存在显著正相关。
+
+总结：相关系数相等源于数学等价性，t值差异是由于自由度计算方式不同（`cor.test` 未调整控制变量，而 `pcor.test` 进行了调整）。
+
+```{r}
+spcor.test(df5.1$magic_score,df5.1$iden_n,df5.1$spirit_root_n)
+spcor.test(df5.1$iden_n,df5.1$magic_score,df5.1$spirit_root_n)
+spcor.test(df5.1$magic_score,df5.1$spirit_root_n,df5.1$iden_n)
+spcor.test(df5.1$spirit_root_n,df5.1$magic_score,df5.1$iden_n)
+cor.test(df5.1$iden_n,resid(lm5.1))
+cor.test(df5.1$magic_score,resid(lm5.2))
+cor.test(df5.1$spirit_root_n,resid(lm5.3))
+cor.test(df5.1$magic_score,resid(lm5.4))
+```
+
+
+
+## 连续变量的调节与控制
+
+## 中心化
+
+## 连续变量+分类变量
+
+## Neyman

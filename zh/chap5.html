@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>chap5</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="chap5_files/libs/clipboard/clipboard.min.js"></script>
+<script src="chap5_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="chap5_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="chap5_files/libs/quarto-html/popper.min.js"></script>
+<script src="chap5_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="chap5_files/libs/quarto-html/anchor.min.js"></script>
+<link href="chap5_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="chap5_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="chap5_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="chap5_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="chap5_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="灵根修仙与魔法多因素预测变量与交互作用施工中" class="level1">
+<h1>灵根！修仙与魔法——多因素预测变量与交互作用（施工中）</h1>
+<p>如果说，魔法世界的一切看起来都深邃、神秘，那一定是因为我们还没能接近魔法力量诞生的本质。探寻魔法力量的本质，或者一切超自然力量的本质，必然在那个魔法世界中是一个永恒的课题。魔法的能量来自哪里？魔法与物质世界的交互机制是什么？不同施法者的施法效果是否受他的主观感受、性格差异或者情绪状态影响？我愿把这门学科命名为魔法科学。</p>
+<p>好了，假设我们现在是一名魔法科学的研究者。随着魔法生产力的逐渐提高，我们和星球上其他部分的科研交流更加密切了起来。一个有意思的超自然研究领域得到了我们的关注，那就是修真。与魔法施法者与魔法元素直接沟通排序施放不同，东方独立发展出了另一套“修真”的超自然体系，在这一体系下，人们的超自然力量需要经过修炼。即先通过身体吸纳身边的魔法元素（也被称为灵气），进而使用灵气改造身体成为施法仪式的一部分。在这样的修炼体系下，人们发现一些人对某种或某几种魔法元素的吸纳效果显著高于其他魔法元素和其他人，这样的人被认为身具“灵根”。<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p><img src="images/clipboard-889461542.png" class="img-fluid"></p>
+<p>作为一个训练有素的魔法科学研究者，相信你一定会敏锐地察觉到，既然“灵根”与魔法元素的吸纳有关，而且是人与人修真能力评价个体差异的组成部分之一，那么它是否会影响我们一直关注的魔法天赋分数呢？</p>
+<p>为了探索这个课题，首先，我们还是要获得我们的数据。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 设定随机种子，保证你能用这段代码得到跟我一样的结果</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">233</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 生成被试ID</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>ID <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">500</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 我们的老朋友自我性别认同</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>iden <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"武装直升机"</span>,<span class="dv">250</span>),<span class="fu">rep</span>(<span class="st">"某品牌塑料袋"</span>,<span class="dv">250</span>)))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 这次直接生成对应自我性别认同的哑变量编码</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>iden_n <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>,<span class="dv">250</span>),<span class="fu">rep</span>(<span class="dv">1</span>,<span class="dv">250</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 灵根变量</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>spirit_root <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"无灵根"</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="st">"有灵根"</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="st">"无灵根"</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="st">"有灵根"</span>,<span class="dv">125</span>)))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 灵根的哑变量编码</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>spirit_root_n <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="dv">1</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="dv">0</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="dv">1</span>,<span class="dv">125</span>))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 生成魔法天赋</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>magic_score <span class="ot">&lt;-</span> <span class="dv">70</span> <span class="sc">+</span> <span class="dv">10</span><span class="sc">*</span>iden_n <span class="sc">+</span> <span class="dv">10</span><span class="sc">*</span>spirit_root_n <span class="sc">-</span><span class="dv">10</span><span class="sc">*</span>iden_n<span class="sc">*</span>spirit_root_n <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">500</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 因为第一个数据框我们命名为df1,这里我们就命名为df2了</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span> <span class="ot">&lt;-</span> df5 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(ID,iden,iden_n,spirit_root,spirit_root_n,magic_score)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## 看看数据框长啥样</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> (df5<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ID       iden iden_n spirit_root spirit_root_n magic_score
+1  1 武装直升机      0      无灵根             0    74.48066
+2  2 武装直升机      0      无灵根             0    73.66222
+3  3 武装直升机      0      无灵根             0    68.45923
+4  4 武装直升机      0      无灵根             0    65.24286
+5  5 武装直升机      0      无灵根             0    68.21877
+6  6 武装直升机      0      无灵根             0    76.58066</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> (df5<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     ID         iden iden_n spirit_root spirit_root_n magic_score
+495 495 某品牌塑料袋      1      有灵根             1    81.46580
+496 496 某品牌塑料袋      1      有灵根             1    77.61641
+497 497 某品牌塑料袋      1      有灵根             1    72.54162
+498 498 某品牌塑料袋      1      有灵根             1    78.00396
+499 499 某品牌塑料袋      1      有灵根             1    82.09529
+500 500 某品牌塑料袋      1      有灵根             1    83.61281</code></pre>
+</div>
+</div>
+<p>我们同样也可以用小提琴图对这个数据进行可视化。</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chap5_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>看到这样的描述统计，你认为灵根和自我性别认同这两个变量是如何影响魔法天赋分数的呢？</p>
+<section id="踏上多因素之路" class="level2">
+<h2 class="anchored" data-anchor-id="踏上多因素之路">踏上多因素之路</h2>
+<p>现在，除了自我性别认同这个变量之外，我们有了另一个我们认为可能会影响魔法天赋分数的变量————灵根。如果你还记得，当我们只有一个自我性别认同变量的时候，我们做的方差分析叫做单因素方差分析。那么现在，我们有了两个因素，我们自然就是在进行双因素的分析。而根据人类大多数只擅长数到三的定律，大于等于三的因素分析我们一般就成为多因素分析。显然，双因素就是我们踏上多因素之路的第一步。</p>
+<section id="主效应与主效应模型" class="level3">
+<h3 class="anchored" data-anchor-id="主效应与主效应模型">主效应与主效应模型</h3>
+<p>在前几章的实践中，我们探索了如何在一个线性回归模型中，检验自我性别认同对一个人的魔法天赋是否有显著的影响。用一样的方式，我们当然也可以在这个新的我们从神秘宇宙中获得的数据中检验我们的魔法科学问题。</p>
+<p>首先，我们可以检验自我性别认同对于魔法天赋分数的影响，就像我们前几章一直在做的一样。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden,df5<span class="fl">.1</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-14.1605  -4.2833  -0.1469   4.1079  18.5772 
+
+Coefficients:
+               Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)     80.4489     0.3669  219.26   &lt;2e-16 ***
+iden武装直升机  -5.3483     0.5189  -10.31   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.801 on 498 degrees of freedom
+Multiple R-squared:  0.1758,    Adjusted R-squared:  0.1742 
+F-statistic: 106.2 on 1 and 498 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>看上去，结果和我们之前检验出来的结果一样，机人相对于袋人更没有魔法天赋。</p>
+<p>那么，如果你认为“灵根”可能在冥冥中对一个人的魔法天赋有影响，我们应该如何检验这个魔法科学问题呢？自然而然的，我们也会想到复制上面的分析方式。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ spirit_root, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-14.5669  -4.5029  -0.2863   4.1311  17.5207 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        75.5071     0.3777  199.89  &lt; 2e-16 ***
+spirit_root有灵根   4.5354     0.5342    8.49  2.4e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.973 on 498 degrees of freedom
+Multiple R-squared:  0.1264,    Adjusted R-squared:  0.1247 
+F-statistic: 72.08 on 1 and 498 DF,  p-value: 2.396e-16</code></pre>
+</div>
+</div>
+<p>看上去似乎灵根对魔法天赋也有显著的影响，有灵根的人，魔法天赋也会更高一些。其实，到这里我们的问题看上去已经基本解决了？</p>
+<p>这取决于我们的研究假设。回到我们的第二章的内容 <strong>?@sec-零假设显著性检验</strong> ，我们的统计检验本质上是在用我们的样本数据，对我们的研究假设（备择假设）和零假设进行一个决策上的取舍。上面两个统计检验，就像我们在第四章中做的那样，是分别针对我们的两个变量，性别自我认同和灵根，对我们的因变量魔法天赋分数的影响的检验。问题在于，这是对两个魔法科学问题的检验。那么，它们并不属于一个研究，而是两个研究。<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>有读者会说，这很简单啊，就像你在第四章里做的那样，既然一个三水平变量可以作为两个虚拟变量放进方程，那就把这两个变量一起放进线性方程里不就行了。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">+</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden + spirit_root, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.4039  -3.5213  -0.0971   3.3806  16.3095 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        78.1812     0.4139  188.89   &lt;2e-16 ***
+iden武装直升机     -5.3483     0.4779  -11.19   &lt;2e-16 ***
+spirit_root有灵根   4.5354     0.4779    9.49   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.343 on 497 degrees of freedom
+Multiple R-squared:  0.3022,    Adjusted R-squared:  0.2994 
+F-statistic: 107.6 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>如上，如果你是这么想的，那么恭喜你，你重新造出了一个叫做二元线性回归的轮子。就像我们之前说的，不管你是t检验、方差分析、相关、还是回归方程，都可以以一种线性模型的视角思考。那么这个二元线性回归，除了比一元线性回归贵了一元之外，也可以视为和双因素方差分析在某种程度上等价。而遵循着一样的数数能力限制，三元以上的线性回归，我们叫它们多元线性回归模型。</p>
+<p>如果你如我希望的，已经学过方差分析，你一定会知道一个词，叫做因素的主效应（main effect）。实际上上面的线性回归，就是对这两个变量或者我们叫因素的主效应的检验，也就是主效应模型。不过我们这么介绍有点鸡生蛋蛋生鸡的循环定义问题，所以主效应具体是什么呢？</p>
+<p>其实，在我们现在的模型里，如果你只看每个变量对应的回归系数，也就是他们的斜率数值，会发现其实每个变量单独做分析，和两个变量放在一起做二元回归，得到的回归系数都一样。如果你还记得我们在第四章做了什么，应该也会有印象，我们有意义的编码分类变量一般就是对平均数进行各种加减，而哑变量一般就是直接对于两个组的均值直接相减。</p>
+<p>那么，我们来看看平均数。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 每组的平均数</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span>_means <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(magic_score <span class="sc">~</span> iden <span class="sc">+</span> spirit_root, <span class="at">data =</span> df5<span class="fl">.1</span>, <span class="at">FUN =</span> mean)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span>_means</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          iden spirit_root magic_score
+1 某品牌塑料袋      无灵根    80.50499
+2   武装直升机      无灵根    70.50922
+3 某品牌塑料袋      有灵根    80.39286
+4   武装直升机      有灵根    79.69205</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 为了便于后面的计算，我们把这四个组均值重新命名成四个变量方便引用且易读</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>M_bag_noroot <span class="ot">&lt;-</span> df5<span class="fl">.1</span>_means[df5<span class="fl">.1</span>_means<span class="sc">$</span>iden<span class="sc">==</span><span class="st">"某品牌塑料袋"</span> <span class="sc">&amp;</span> df5<span class="fl">.1</span>_means<span class="sc">$</span>spirit_root<span class="sc">==</span><span class="st">"无灵根"</span>, <span class="st">"magic_score"</span>]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>M_heli_noroot <span class="ot">&lt;-</span> df5<span class="fl">.1</span>_means[df5<span class="fl">.1</span>_means<span class="sc">$</span>iden<span class="sc">==</span><span class="st">"武装直升机"</span> <span class="sc">&amp;</span> df5<span class="fl">.1</span>_means<span class="sc">$</span>spirit_root<span class="sc">==</span><span class="st">"无灵根"</span>, <span class="st">"magic_score"</span>]</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>M_bag_root <span class="ot">&lt;-</span> df5<span class="fl">.1</span>_means[df5<span class="fl">.1</span>_means<span class="sc">$</span>iden<span class="sc">==</span><span class="st">"某品牌塑料袋"</span> <span class="sc">&amp;</span> df5<span class="fl">.1</span>_means<span class="sc">$</span>spirit_root<span class="sc">==</span><span class="st">"有灵根"</span>, <span class="st">"magic_score"</span>]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>M_heli_root <span class="ot">&lt;-</span> df5<span class="fl">.1</span>_means[df5<span class="fl">.1</span>_means<span class="sc">$</span>iden<span class="sc">==</span><span class="st">"武装直升机"</span> <span class="sc">&amp;</span> df5<span class="fl">.1</span>_means<span class="sc">$</span>spirit_root<span class="sc">==</span><span class="st">"有灵根"</span>, <span class="st">"magic_score"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>回顾我们的回归模型，自我性别认同对应的回归系数数值是 -5.3483,灵根对应的回归系数数值是4.5354。它们计算的是什么呢？不难发现：</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 机人均值-袋人均值</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>(M_heli_noroot <span class="sc">+</span> M_heli_root)<span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> (M_bag_noroot <span class="sc">+</span> M_bag_root)<span class="sc">/</span><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -5.348287</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 有灵根人均值-无零根人均值</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>(M_heli_root <span class="sc">+</span> M_bag_root)<span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> (M_heli_noroot <span class="sc">+</span> M_bag_noroot)<span class="sc">/</span><span class="dv">2</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.535352</code></pre>
+</div>
+</div>
+<p>看来，这两个回归系数，其实就是对应变量的组均值的差值，跟我们在第四章中使用哑变量时做的一样。</p>
+</section>
+</section>
+<section id="几个人的努力才不是加法交互作用" class="level2">
+<h2 class="anchored" data-anchor-id="几个人的努力才不是加法交互作用">几个人的努力才不是加法？交互作用</h2>
+<p>不过，比较回归系数，我们似乎忘记了截距啊？这三个回归模型的截距却是完全不同的。性别自我认同作为预测变量时，回归模型的截距是 80.4489；灵根作为预测变量时，截距是 75.5071；两者同时作为预测变量时，截距是 78.1812。前两个模型的截距，没有什么问题，跟我们上一章中的结果一样，对应的是在哑变量编码中我们选作参照水平（编码为0）的那一组的均值。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 袋人的魔法天赋分数均值</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>(M_bag_noroot <span class="sc">+</span> M_bag_root)<span class="sc">/</span><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 80.44892</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 无灵根人的魔法天赋分数均值</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>(M_heli_noroot <span class="sc">+</span> M_bag_noroot)<span class="sc">/</span><span class="dv">2</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 75.5071</code></pre>
+</div>
+</div>
+<p>但是，我们的第三个模型中的截距，对应的均值是什么呢？</p>
+<p>用一样的逻辑，它似乎应该对应的是两个哑变量编码都对应参照水平的那个组，也就是都编码为0的那一组的均值。也就是武装直升机+无灵根那一组的均值。但是我们可以看到，上面模型里的截距数值是78.1812，而武装直升机+无灵根组的平均值是70.50922。数值上相差的很多。那么，亲爱的读者们，你们觉得是什么原因呢？是我们的逻辑发生了错误，还是它其实对应着其他的平均值？</p>
+<p>好了，不为难大家了。其实我们不妨换一个角度考虑，如果找不到这个截距对应的平均数，也许并不是我们上面的推理出了问题，而是我们的模型本身出了问题？</p>
+<p>我们之前介绍过一些简单回归或者单因素方差分析模型的统计假设。在多元回归，也就是像我们这样的多个预测变量的回归中，统计上还有一个假设，叫做加法假设（Additive assumption）<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>。什么意思呢，我们来看下面的公式。</p>
+<p><span class="math display">\[
+y=b_0+b_1x_1+b_2x_2+e
+\]</span></p>
+<p>这是一个二元回归方程，我们上面的数据分析就可以写成这种形式，x<sub>1</sub>就是我们的性别自我认同，x<sub>2</sub>就是我们的灵根。如果我们的x<sub>1</sub>在数值上增加1呢？</p>
+<p><span class="math display">\[
+\tilde y=b_0+b_1(x_1+1)+b_2x_2+e
+\]</span></p>
+<p>把式子展开，就可以看出：</p>
+<p><span class="math display">\[
+\begin{align}
+\tilde y&amp;=b_0+b_1x_1+b_1+b_2x_2+e\\
+\tilde y&amp;=b_0+b_1x_1+b_2x_2+e+b_1\\
+\tilde y&amp;=y+b_1
+\end{align}
+\]</span></p>
+<p>换句话说，理论上来说，x<sub>1</sub>每增加一个单位，y最终的数值就会对应地增加x<sub>1</sub>对应的回归系数。符合直觉，对吧？</p>
+<p>那么我们来看我们数据的描述统计。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df5_1_wide <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> df5<span class="fl">.1</span>_means,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">names_from =</span> spirit_root, <span class="co"># 将这一列的值（有灵根/无灵根）变为新列名</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">values_from =</span> magic_score <span class="co"># 用 magic_score 的值填充新列</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>df5_1_wide<span class="sc">$</span>iden <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"iden=0；某品牌塑料袋"</span>,<span class="st">"iden=1；武装直升机"</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(df5_1_wide)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  iden                 无灵根 有灵根
+  &lt;chr&gt;                 &lt;dbl&gt;  &lt;dbl&gt;
+1 iden=0；某品牌塑料袋   80.5   80.4
+2 iden=1；武装直升机     70.5   79.7</code></pre>
+</div>
+</div>
+<p>我们的x<sub>1</sub>，也就是自我性别认同 iden，在灵根的两个水平上从0到1的增加是我们的回归系数b<sub>1</sub> （-5.3483）吗？</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>M_heli_noroot<span class="sc">-</span>M_bag_noroot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -9.995768</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>M_heli_root<span class="sc">-</span>M_bag_root</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.7008058</code></pre>
+</div>
+</div>
+<p>都不是，显然，现在的数据无法满足加法假设。其实观察不难发现，现在的回归系数，是对灵根的两个水平下自我性别认同的两个增加值求的平均。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>(M_heli_noroot<span class="sc">-</span>M_bag_noroot<span class="sc">+</span>M_heli_root<span class="sc">-</span>M_bag_root)<span class="sc">/</span><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -5.348287</code></pre>
+</div>
+</div>
+<p>换句话说，由于加法假设无法满足，所以现有的模型拟合，只能对回归系数的估计，取一个平均值来表述一个一般情况。</p>
+<p>实际上，如果我们使用拟合出来的模型对四组的均值做预测，得到的结果是这样的。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 为了便于写预测代码，这里使用的是我们手动编码的值作为连续变量放入模型</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.4</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden_n<span class="sc">+</span>spirit_root_n,df5<span class="fl">.1</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_n + spirit_root_n, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.4039  -3.5213  -0.0971   3.3806  16.3095 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    72.8330     0.4139  175.97   &lt;2e-16 ***
+iden_n          5.3483     0.4779   11.19   &lt;2e-16 ***
+spirit_root_n   4.5354     0.4779    9.49   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.343 on 497 degrees of freedom
+Multiple R-squared:  0.3022,    Adjusted R-squared:  0.2994 
+F-statistic: 107.6 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 我们自己编码的自我性别认同跟上面使用的回归方程的自动编码是相反的，懒得改了:P</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 0=机人；1=袋人</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>pred_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">iden_n =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>),   </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">spirit_root_n =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>) </span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>pred_results <span class="ot">&lt;-</span> <span class="fu">predict</span>(lm5<span class="fl">.4</span>, <span class="at">newdata =</span> pred_data)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>pred_results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1        2        3        4 
+78.18125 72.83296 82.71660 77.36831 </code></pre>
+</div>
+</div>
+<p>对比我们数据实际的均值，都不一样。实际上，你也许注意到了，我们上面预测出来的袋人无灵根组的均值，就是我们最开始做的lm5.3模型报告的截距。因为加法假设没有满足，所以整个回归方程对于组均值的预测全部出现了偏差！</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span>_means</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          iden spirit_root magic_score
+1 某品牌塑料袋      无灵根    80.50499
+2   武装直升机      无灵根    70.50922
+3 某品牌塑料袋      有灵根    80.39286
+4   武装直升机      有灵根    79.69205</code></pre>
+</div>
+</div>
+<p>更直观地来看这个加法假设没有被满足的情况，我们不妨重新画一个图，在这个图里，我们使用折线来展示我们的数据。</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chap5_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>还记得吗，我们的x<sub>1</sub>是性别自我认同，x<sub>2</sub>是灵根的话，加法假设的意思就是，不管我们的研究对象有灵根还是没有灵根，性别自我认同对魔法天赋分数的影响都是一样的（增加一个单位的x<sub>1</sub>,都同样增加一个相等的b<sub>1</sub>，也就是斜率）。这体现在我们的图上应该是什么样呢？是的，斜率相等，纵向上看，两个橙点之间的距离应该等于两个绿点之间的距离。换句话说，两条线应该彼此平行。</p>
+<p>显然，我们图中呈现的两条线并不平行。这违反了我们的加法假设，也就是为什么我们的模型对于组均值的估计不准确的主要原因。</p>
+<p>这时候，学过两因素以上方差分析的读者大概会一脸不屑。你写了这么久，说的这个现象不就是交互作用么。是的！如果你还记得我们这个小节的标题是什么的话，这就是我引入交互作用的方式。我想说的正是，加法假设的意思，其实就是变量之间不存在交互作用<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>。</p>
+<p><span class="math display">\[
+魔法天赋分数=b_0+b_1性别自我认同+b_2灵根
+\]</span></p>
+<p>如果我们认为性别自我认同对于魔法天赋分数的影响在有灵根和无灵根时不一样，这意味着什么呢？我们前面说了，在线性模型中，我们把回归系数，也就是变量的斜率，看作是预测变量对于结果变量的影响程度。那么，当存在交互作用，或者加法假设被违反时，这意味着预测变量对于结果变量的影响，也就是斜率，受到另一个变量的影响。有灵根时，性别自我认同的斜率是一个值，没有灵根时又是另外一个值了。换句话说，在我们的例子里，性别自我认同对于魔法天赋分数的影响，也就是它的斜率，受到灵根的影响。是不是感觉我在说绕口令？没关系，我们可以用优美简洁的数学来表达这件事。我们上面式子中的b<sub>1</sub>代表性别自我认同对于魔法天赋的影响，那么，性别自我认同对于魔法天赋分数的斜率受灵根影响可以表达为：</p>
+<p><span class="math display">\[
+b_1=b_3+b_4灵根
+\]</span></p>
+<p>也就是说，b<sub>1</sub>是一个受灵根预测的结果变量。我们不妨把b<sub>1</sub>代回原来的式子，整理一下可以得到：</p>
+<p><span class="math display">\[
+\begin{align}
+魔法天赋分数&amp;=b_0+(b_3+b_4灵根)性别自我认同+b_2灵根\\
+魔法天赋分数&amp;=b_0+b_3性别自我认同+b_4灵根\times 性别自我认同+b_2灵根
+\end{align}
+\]</span></p>
+<p>为了我们对回归系数的编码美观，我们可以调整一下回归系数的下标，写成：</p>
+<p><span class="math display">\[
+魔法天赋分数=b_0+b_1性别自我认同+b_2灵根+b_3灵根\times 性别自我认同
+\]</span></p>
+<p>不难看出，这个式子也可以看作灵根对魔法天赋的影响（斜率）受性别自我认同的影响：</p>
+<p><span class="math display">\[
+魔法天赋分数=b_0+b_1性别自我认同+(b_2+b_3性别自我认同)灵根
+\]</span></p>
+<p>这也是交互作用的意思，当两个预测变量存在交互作用时，它们对结果变量的影响是彼此互相作用的，也就是一个“交互”的作用。你可以看作是性别自我认同影响灵根对魔法天赋的影响，也可以看作是灵根影响自我性别认同对天赋的影响，这是一个一体两面的现象。</p>
+<p>构建出了上面的式子，就不难看出，在方程中加入两个变量的乘积项，就是检验交互作用的方法。我们实践一下：</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 在数据中构建两个变量的乘积项</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span><span class="sc">$</span>int_iden_root <span class="ot">&lt;-</span> df5<span class="fl">.1</span><span class="sc">$</span>iden_n<span class="sc">*</span>df5<span class="fl">.1</span><span class="sc">$</span>spirit_root_n</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 检验我们的模型</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">5.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden_n<span class="sc">+</span>spirit_root_n<span class="sc">+</span>int_iden_root,df5<span class="fl">.1</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">5.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_n + spirit_root_n + int_iden_root, 
+    data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.0943  -0.1403   3.2467  13.9858 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    70.5092     0.4305  163.79   &lt;2e-16 ***
+iden_n          9.9958     0.6088   16.42   &lt;2e-16 ***
+spirit_root_n   9.1828     0.6088   15.08   &lt;2e-16 ***
+int_iden_root  -9.2950     0.8610  -10.80   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.813 on 496 degrees of freedom
+Multiple R-squared:  0.435, Adjusted R-squared:  0.4316 
+F-statistic: 127.3 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+补充：介绍几种R代码的写法
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>我们上面的代码写法有些笨拙，显然这么常见的交互作用每次都要先从数据变量层面开始构建交互项太累了。所以我总结了一下我所知道的，比较简便的一些写法。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="do">## I(),括号内可以直接进行变量运算，会被当成一个完整的变量处理</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">5.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden_n<span class="sc">+</span>spirit_root_n<span class="sc">+</span><span class="fu">I</span>(iden_n<span class="sc">*</span>spirit_root_n),df5<span class="fl">.1</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">5.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_n + spirit_root_n + I(iden_n * 
+    spirit_root_n), data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.0943  -0.1403   3.2467  13.9858 
+
+Coefficients:
+                          Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                70.5092     0.4305  163.79   &lt;2e-16 ***
+iden_n                      9.9958     0.6088   16.42   &lt;2e-16 ***
+spirit_root_n               9.1828     0.6088   15.08   &lt;2e-16 ***
+I(iden_n * spirit_root_n)  -9.2950     0.8610  -10.80   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.813 on 496 degrees of freedom
+Multiple R-squared:  0.435, Adjusted R-squared:  0.4316 
+F-statistic: 127.3 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 在R中，乘积项可以用:表征</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">5.3</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden_n<span class="sc">+</span>spirit_root_n<span class="sc">+</span>iden_n<span class="sc">:</span>spirit_root_n,df5<span class="fl">.1</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">5.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_n + spirit_root_n + iden_n:spirit_root_n, 
+    data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.0943  -0.1403   3.2467  13.9858 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           70.5092     0.4305  163.79   &lt;2e-16 ***
+iden_n                 9.9958     0.6088   16.42   &lt;2e-16 ***
+spirit_root_n          9.1828     0.6088   15.08   &lt;2e-16 ***
+iden_n:spirit_root_n  -9.2950     0.8610  -10.80   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.813 on 496 degrees of freedom
+Multiple R-squared:  0.435, Adjusted R-squared:  0.4316 
+F-statistic: 127.3 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 为什么不用*号呢，因为*有更高效的用途：iden_n*spirit_root就代表了上面式子的所有项了</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">5.4</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden_n<span class="sc">*</span>spirit_root_n,df5<span class="fl">.1</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">5.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_n * spirit_root_n, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.0943  -0.1403   3.2467  13.9858 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           70.5092     0.4305  163.79   &lt;2e-16 ***
+iden_n                 9.9958     0.6088   16.42   &lt;2e-16 ***
+spirit_root_n          9.1828     0.6088   15.08   &lt;2e-16 ***
+iden_n:spirit_root_n  -9.2950     0.8610  -10.80   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.813 on 496 degrees of freedom
+Multiple R-squared:  0.435, Adjusted R-squared:  0.4316 
+F-statistic: 127.3 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</div>
+</div>
+<p>加入了交互项之后，我们线性模型拟合出的截距就是70.5092,跟我们哑变量编码设定的那个控制组就一致了。看来，之所以对截距的估计出现偏误，就是因为我们假设了加法假设成立，但实际数据却并不满足的关系。感兴趣的读者可以试试，用有交互项的模型向我们上面那样对各组均值预测，是否还有误差。</p>
+<p>如果你是一个好奇心足够旺盛的读者，现在可能已经拉到我们一开始的数据生成部分看过了。啊哈，你一开始生成数据的时候就加了交互项，当然会有这个问题了。那么，如果我们数据在生成时本身就不预设交互作用存在，会发生什么呢？我们来看看。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 生成一个新因变量数据，去掉交互项</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span><span class="sc">$</span>magic_score2 <span class="ot">&lt;-</span> <span class="dv">70</span> <span class="sc">+</span> <span class="dv">10</span><span class="sc">*</span>df5<span class="fl">.1</span><span class="sc">$</span>iden_n <span class="sc">+</span> <span class="dv">10</span><span class="sc">*</span>df5<span class="fl">.1</span><span class="sc">$</span>spirit_root_n  <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">500</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>我们简单看一下新数据的描述统计。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span>_means2 <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(magic_score2 <span class="sc">~</span> iden <span class="sc">+</span> spirit_root, <span class="at">data =</span> df5<span class="fl">.1</span>, <span class="at">FUN =</span> mean)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span>_means2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          iden spirit_root magic_score2
+1 某品牌塑料袋      无灵根     79.37396
+2   武装直升机      无灵根     69.53406
+3 某品牌塑料袋      有灵根     89.83024
+4   武装直升机      有灵根     80.40954</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chap5_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>很漂亮的两条平行线。多说一句，我们其实经常根据这样的折线图两条线有没有交叉来判断是否可能存在交互作用。</p>
+<p>不过，我们来看看截距的估计。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">6.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score2<span class="sc">~</span>iden<span class="sc">+</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">6.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score2 ~ iden + spirit_root, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-16.6652  -3.6553   0.1143   3.5912  15.8219 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        79.2692     0.4118  192.51   &lt;2e-16 ***
+iden武装直升机     -9.6303     0.4755  -20.25   &lt;2e-16 ***
+spirit_root有灵根  10.6659     0.4755   22.43   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.316 on 497 degrees of freedom
+Multiple R-squared:  0.6476,    Adjusted R-squared:  0.6462 
+F-statistic: 456.7 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>我们新生成的数据的袋人+无灵根组的实际均值是79.38925。上面的主效应模型的截距非常接近这个数值，但是终究不是相等的。那么，我们不妨来看看加了交互项之后的模型拟合结果。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">6.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score2<span class="sc">~</span>iden<span class="sc">*</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">6.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score2 ~ iden * spirit_root, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-16.5604  -3.6096   0.0785   3.6053  15.7171 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                       79.3740     0.4758  166.81   &lt;2e-16 ***
+iden武装直升机                    -9.8399     0.6729  -14.62   &lt;2e-16 ***
+spirit_root有灵根                 10.4563     0.6729   15.54   &lt;2e-16 ***
+iden武装直升机:spirit_root有灵根   0.4192     0.9517    0.44     0.66    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.32 on 496 degrees of freedom
+Multiple R-squared:  0.6478,    Adjusted R-squared:  0.6456 
+F-statistic: 304.1 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>啊哈，这回是完全相等的了。这说明什么呢？即使在以没有交互为前提生成的数据下，加入交互项也是对数据均值最准确的估计。数据生成中加入的误差，也会一定程度上插足进两个变量的彼此交互作用中。</p>
+<p>为什么方差分析没有对应的假设呢？因为实际上方差分析总是会分析所有交互作用，因此根本不存在需要满足加法假设的情况。但是协方差分析ANCOVA，就要求满足homogeneity of regression slopes。这一点，我们之后再说。<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
+</section>
+<section id="主效应与简单主效应" class="level2">
+<h2 class="anchored" data-anchor-id="主效应与简单主效应">主效应与简单主效应</h2>
+<p>好了，现在我们已经基本完成了验证我们研究假设所需要的线性模型的构建。lm5.5.1基本就是我们会使用的模型。不过目前输出的结果，还是以线性回归的方式完成的。而通常这种研究设计，我们习惯上还是以方差分析的方式来报告。接下来我们比较一下。首先是我们的回归结果。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.7</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">*</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden * spirit_root, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.0943  -0.1403   3.2467  13.9858 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                       80.5050     0.4305 187.007   &lt;2e-16 ***
+iden武装直升机                    -9.9958     0.6088 -16.419   &lt;2e-16 ***
+spirit_root有灵根                 -0.1121     0.6088  -0.184    0.854    
+iden武装直升机:spirit_root有灵根   9.2950     0.8610  10.796   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.813 on 496 degrees of freedom
+Multiple R-squared:  0.435, Adjusted R-squared:  0.4316 
+F-statistic: 127.3 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>而在r中，默认报告方差分析的命令是anova()。我们来看看方差分析的结果。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5<span class="fl">.7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: magic_score
+                  Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+iden               1  3575.5  3575.5  154.35 &lt; 2.2e-16 ***
+spirit_root        1  2571.2  2571.2  110.99 &lt; 2.2e-16 ***
+iden:spirit_root   1  2699.9  2699.9  116.55 &lt; 2.2e-16 ***
+Residuals        496 11490.0    23.2                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>敏锐的读者肯定察觉到了，回归分析的结果，跟方差分析的结果好像并不一致。在回归分析中，灵根变量对应的回归系数并不显著。而在方差分析中，灵根因素的方差分析检验却是显著的，为什么呢？</p>
+<p>我们不妨回到哑变量编码<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>。就像我们在第四章中做的一样，我们可以先列出我们的变量编码表，由于我们还有一个交互作用项，这一项的编码，就像我们之前使用代码生成它时做的那样，由组成它的编码变量相乘得到。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>自我性别认同</th>
+<th>Iden_D</th>
+<th>Spirit_root_D</th>
+<th>Iden_D:Spirit_root_D</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>机人+无灵根</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>机人+有灵根</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>袋人+无灵根</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>袋人+有灵根</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>如果你已经对第四章的内容稔熟于胸，不难写出下面关于每组预测值（平均数）与回归系数之间的关系。</p>
+<p><span class="math display">\[
+\begin{align*}
+\hat{y}_{\text{机人+无灵根}} &amp;= b_0 \\
+\hat{y}_{\text{机人+有灵根}} &amp;= b_0 + b_2 \\
+\hat{y}_{\text{袋人+无灵根}} &amp;= b_0 + b_1 \\
+\hat{y}_{\text{袋人+有灵根}} &amp;= b_0 + b_1 + b_2 + b_3
+\end{align*}
+\]</span></p>
+<p>接下来，我们还是解方程。不难得到：</p>
+<p><span class="math display">\[
+\begin{align*}
+b_0 &amp;= \hat{y}_{\text{机人+无灵根}} \\
+b_1 &amp;= \hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+无灵根}} \\
+b_2 &amp;= \hat{y}_{\text{机人+有灵根}} - \hat{y}_{\text{机人+无灵根}} \\
+b_3 &amp;= \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+有灵根}} + \hat{y}_{\text{机人+无灵根}}
+\end{align*}
+\]</span></p>
+<p>我们的b<sub>1</sub>和b<sub>2</sub>对应的组均值之间的关系是什么呢？b<sub>1</sub>对应的是，无灵根条件下，机人和袋人之间的均值差异。b<sub>2</sub>对应的是，机人条件下，有灵根和无灵根之间的均值差异。这是我们的主效应吗？看上去并不是。</p>
+<p>如果你还记得就在不久之前，我们提到过一个主效应模型。也就是在哑变量编码的情况下，不放入交互作用项的模型。换句话说，就是上面的编码表中，没有交互项那最后一列的情况。同样的，我们可以写出这个主效应模型的预测值与回归系数之间的关系：</p>
+<p><span class="math display">\[
+\begin{align*}
+\hat{y}_{\text{机人+无灵根}} &amp;= b_0 \\
+\hat{y}_{\text{机人+有灵根}} &amp;= b_0 + b_2 \\
+\hat{y}_{\text{袋人+无灵根}} &amp;= b_0 + b_1 \\
+\hat{y}_{\text{袋人+有灵根}} &amp;= b_0 + b_1 + b_2
+\end{align*}
+\]</span></p>
+<p>这组公式，我们有三个未知数，却有四个方程，我们不妨用前三个方程计算，易得：</p>
+<p><span class="math display">\[
+\begin{align*}
+b_0 &amp;= \hat{y}_{\text{机人+无灵根}} \\
+b_1 &amp;= \hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+无灵根}} \\
+b_2 &amp;= \hat{y}_{\text{机人+有灵根}} - \hat{y}_{\text{机人+无灵根}}
+\end{align*}
+\]</span></p>
+<p>那么第四个方程怎么办呢，我们不妨把上面三个回归系数，代回最后一个式子，得到：</p>
+<p><span id="eq-int_dummy1"><span class="math display">\[
+\hat{y}_{\text{袋人+有灵根}}=\hat{y}_{\text{机人+无灵根}} + (\hat{y}_{\text{袋人+无灵根}} - \hat{y}_{\text{机人+无灵根}}) +(\hat{y}_{\text{机人+有灵根}} - \hat{y}_{\text{机人+无灵根}})
+\tag{1}\]</span></span></p>
+<p>显然，这个等式不是一定成立的。怎么理解呢？我们可以通过图来直观的感受一下。</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chap5_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>这是我们之前绘制的折线图。b<sub>0</sub>是机人无灵根组的均值，我标示在了右下角，并且画了一根灰色虚线来表示它的均值水平。而上面等式的左边，是我们的袋人有灵根组的均值，我用图中上部的灰色虚线表示。要让等式相等，其实我们可以看作从b0这根起跑线出发，怎么能够到达袋人有灵根组均值的终点线。那么，后面的b1和b2代表什么呢？依照我们的推导，b1代表的是无灵根组的机人和袋人在魔法天赋上的差值，也就是图中旁边标示了b1的红色箭头；而b2代表的是机人组中，有灵根和无灵根在魔法天赋上的差异，也就是旁边标示了b2的蓝色箭头。那么，我们从b0出发，先跑过红色箭头表示的距离，再跑过蓝色箭头表示的距离，最终会准确抵达终点吗？显然，在图中的这种情况下是不会的，我们会跑过头非常多。</p>
+<p>所以，有这种情况吗？</p>
+<p>有的，朋友，有的。你还记得我们还假设过另一组数据吗？我们不妨看看它的图。</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chap5_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>看上去是不是有成功的可能性了？只要途中两个红色箭头的长度相等，蓝色箭头的长度也相等，我们就能准确地从起点抵达终点。</p>
+<p><a href="#eq-int_dummy1" class="quarto-xref">Equation&nbsp;1</a></p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chap5_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_n + spirit_root_n, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.4039  -3.5213  -0.0971   3.3806  16.3095 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    72.8330     0.4139  175.97   &lt;2e-16 ***
+iden_n          5.3483     0.4779   11.19   &lt;2e-16 ***
+spirit_root_n   4.5354     0.4779    9.49   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.343 on 497 degrees of freedom
+Multiple R-squared:  0.3022,    Adjusted R-squared:  0.2994 
+F-statistic: 107.6 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>主效应应该是什么样的，我们不妨回到第四章。我们不仅使用了哑变量编码，还使用了另一种编码方式：效应编码。我们来看看效应编码的结果。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span><span class="sc">$</span>iden_ne <span class="ot">&lt;-</span> car<span class="sc">::</span><span class="fu">recode</span>(df5<span class="fl">.1</span><span class="sc">$</span>iden_n,<span class="st">"1=1;0=-1"</span>)</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span><span class="sc">$</span>spirit_root_ne <span class="ot">&lt;-</span> car<span class="sc">::</span><span class="fu">recode</span>(df5<span class="fl">.1</span><span class="sc">$</span>spirit_root_n,<span class="st">"1=1;0=-1"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>效应编码。</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>自我性别认同</th>
+<th>Iden_E</th>
+<th>Spirit_root_E</th>
+<th>Iden_E:Spirit_root_E</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>机人+无灵根</td>
+<td>-1</td>
+<td>-1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>机人+有灵根</td>
+<td>-1</td>
+<td>1</td>
+<td>-1</td>
+</tr>
+<tr class="odd">
+<td>袋人+无灵根</td>
+<td>1</td>
+<td>-1</td>
+<td>-1</td>
+</tr>
+<tr class="even">
+<td>袋人+有灵根</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>我们仍然可以得到：</p>
+<p><span class="math display">\[
+\begin{align}
+\hat y_{机人+无灵根}&amp;=b_0-b_1-b_2+b_3\\
+\hat y_{机人+有灵根}&amp;=b_0-b_1+b_2-b_3\\
+\hat y_{袋人+无灵根}&amp;=b_0+b_1-b_2-b_3\\
+\hat y_{袋人+有灵根}&amp;=b_0+b_1+b_2+b_3
+\end{align}
+\]</span></p>
+<p>一样求解，得到：</p>
+<p><span class="math display">\[
+\begin{align*}
+b_0 &amp;= \frac{1}{4}\left(\hat{y}_{\text{机人+无灵根}} + \hat{y}_{\text{机人+有灵根}} + \hat{y}_{\text{袋人+无灵根}} + \hat{y}_{\text{袋人+有灵根}}\right) \\
+b_1 &amp;= \frac{1}{4}\left(\hat{y}_{\text{袋人+无灵根}} + \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{机人+无灵根}} - \hat{y}_{\text{机人+有灵根}}\right) \\
+b_2 &amp;= \frac{1}{4}\left(\hat{y}_{\text{机人+有灵根}} + \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{机人+无灵根}} - \hat{y}_{\text{袋人+无灵根}}\right) \\
+b_3 &amp;= \frac{1}{4}\left(\hat{y}_{\text{机人+无灵根}}- \hat{y}_{\text{袋人+无灵根}} + \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{机人+有灵根}} \right)
+\end{align*}
+\]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">7.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden_ne<span class="sc">*</span>spirit_root_ne,df5<span class="fl">.1</span>)</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">7.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_ne * spirit_root_ne, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.0943  -0.1403   3.2467  13.9858 
+
+Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)             77.7748     0.2152  361.33   &lt;2e-16 ***
+iden_ne                  2.6741     0.2152   12.42   &lt;2e-16 ***
+spirit_root_ne           2.2677     0.2152   10.54   &lt;2e-16 ***
+iden_ne:spirit_root_ne  -2.3237     0.2152  -10.80   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.813 on 496 degrees of freedom
+Multiple R-squared:  0.435, Adjusted R-squared:  0.4316 
+F-statistic: 127.3 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>而我们使用效应编码进行类似的“主效应模型”检验。</p>
+<p><span class="math display">\[
+\begin{align*}\hat{y}_{\text{机人+无灵根}} &amp;= b_0 - b_1 - b_2 \\\hat{y}_{\text{机人+有灵根}} &amp;= b_0 - b_1 + b_2 \\\hat{y}_{\text{袋人+无灵根}} &amp;= b_0 + b_1 - b_2 \\\hat{y}_{\text{袋人+有灵根}} &amp;= b_0 + b_1 + b_2\end{align*}
+\]</span></p>
+<p>对应的参数应该是：</p>
+<p><span class="math display">\[
+\begin{align*}b_0 &amp;= \frac{1}{4} \left( \hat{y}_{\text{机人+无灵根}} + \hat{y}_{\text{机人+有灵根}} + \hat{y}_{\text{袋人+无灵根}} + \hat{y}_{\text{袋人+有灵根}} \right) \\b_1 &amp;= \frac{1}{4} \left( \hat{y}_{\text{袋人+无灵根}} + \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{机人+无灵根}} - \hat{y}_{\text{机人+有灵根}} \right) \\b_2 &amp;= \frac{1}{4} \left( \hat{y}_{\text{机人+有灵根}} + \hat{y}_{\text{袋人+有灵根}} - \hat{y}_{\text{机人+无灵根}} - \hat{y}_{\text{袋人+无灵根}} \right)\end{align*}
+\]</span></p>
+<p>进行回归检验会发现，其实结果和哑变量编码的主效应模型结果是一致的，同样也是有偏的。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">7.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden_ne<span class="sc">+</span>spirit_root_ne,df5<span class="fl">.1</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">7.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_ne + spirit_root_ne, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.4039  -3.5213  -0.0971   3.3806  16.3095 
+
+Coefficients:
+               Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      77.775      0.239  325.47   &lt;2e-16 ***
+iden_ne           2.674      0.239   11.19   &lt;2e-16 ***
+spirit_root_ne    2.268      0.239    9.49   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.343 on 497 degrees of freedom
+Multiple R-squared:  0.3022,    Adjusted R-squared:  0.2994 
+F-statistic: 107.6 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="三种平方和与模型比较" class="level2">
+<h2 class="anchored" data-anchor-id="三种平方和与模型比较">三种平方和与模型比较</h2>
+<p>看上去差不多，对吗？我们不妨考虑一种情况。我们在上一章，也就是最后一章再次提及了样本容量不平衡带来的问题。这个问题显然也在多元回归或者多因素方差分析中存在，我们不妨重新构造我们的样本，让它不平衡，看看结果如何。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 去掉机人无灵根组里50个数据</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.2</span> <span class="ot">&lt;-</span> df5<span class="fl">.1</span>[df5<span class="fl">.1</span><span class="sc">$</span>ID<span class="sc">&gt;</span><span class="dv">50</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>我们查看一下这个不平衡样本的平均数情况。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.2</span>_means <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(magic_score <span class="sc">~</span> iden <span class="sc">+</span> spirit_root, <span class="at">data =</span> df5<span class="fl">.2</span>, <span class="at">FUN =</span> mean)</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.2</span>_means</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          iden spirit_root magic_score
+1 某品牌塑料袋      无灵根    80.50499
+2   武装直升机      无灵根    70.43552
+3 某品牌塑料袋      有灵根    80.39286
+4   武装直升机      有灵根    79.69205</code></pre>
+</div>
+</div>
+<p>对比一下原来的样本的描述统计数据。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.1</span>_means</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          iden spirit_root magic_score
+1 某品牌塑料袋      无灵根    80.50499
+2   武装直升机      无灵根    70.50922
+3 某品牌塑料袋      有灵根    80.39286
+4   武装直升机      有灵根    79.69205</code></pre>
+</div>
+</div>
+<p>确实只有去掉的组的平均数有些小的改变。接下来，我们做跟上面一样的分析</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">7.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">*</span>spirit_root,df5<span class="fl">.2</span>)</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5.<span class="fl">7.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden * spirit_root, data = df5.2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.2033  -0.0874   3.4345  13.9858 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                       80.5050     0.4360 184.625   &lt;2e-16 ***
+iden武装直升机                   -10.0695     0.7121 -14.141   &lt;2e-16 ***
+spirit_root有灵根                 -0.1121     0.6167  -0.182    0.856    
+iden武装直升机:spirit_root有灵根   9.3687     0.9420   9.946   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.875 on 446 degrees of freedom
+Multiple R-squared:  0.3616,    Adjusted R-squared:  0.3573 
+F-statistic:  84.2 on 3 and 446 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5.<span class="fl">7.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: magic_score
+                  Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+iden               1  1986.3 1986.29  83.573 &lt; 2.2e-16 ***
+spirit_root        1  1666.2 1666.16  70.104 7.342e-16 ***
+iden:spirit_root   1  2351.0 2351.03  98.920 &lt; 2.2e-16 ***
+Residuals        446 10600.1   23.77                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>模型比较</p>
+<p>第三章</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5<span class="fl">.4</span>,lm5.<span class="fl">5.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: magic_score ~ iden_n + spirit_root_n
+Model 2: magic_score ~ iden_n + spirit_root_n + int_iden_root
+  Res.Df   RSS Df Sum of Sq      F    Pr(&gt;F)    
+1    497 14190                                  
+2    496 11490  1    2699.9 116.55 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5.<span class="fl">6.1</span>,lm5.<span class="fl">6.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: magic_score2 ~ iden + spirit_root
+Model 2: magic_score2 ~ iden * spirit_root
+  Res.Df   RSS Df Sum of Sq     F Pr(&gt;F)
+1    497 14044                          
+2    496 14039  1    5.4915 0.194 0.6598</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.2</span> <span class="ot">&lt;-</span> df5<span class="fl">.1</span>[df5<span class="fl">.1</span><span class="sc">$</span>ID<span class="sc">&gt;</span><span class="dv">50</span>,]</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.2</span>_means <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(magic_score <span class="sc">~</span> iden <span class="sc">+</span> spirit_root, <span class="at">data =</span> df5<span class="fl">.2</span>, <span class="at">FUN =</span> mean)</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>df5<span class="fl">.2</span>_means</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          iden spirit_root magic_score
+1 某品牌塑料袋      无灵根    80.50499
+2   武装直升机      无灵根    70.43552
+3 某品牌塑料袋      有灵根    80.39286
+4   武装直升机      有灵根    79.69205</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.4</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">+</span>spirit_root,df5<span class="fl">.2</span>)</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">4.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden,df5<span class="fl">.2</span>)</span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">4.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>spirit_root,df5<span class="fl">.2</span>)</span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">4.0</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>spirit_root<span class="sc">+</span>iden,df5<span class="fl">.2</span>)</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden + spirit_root, data = df5.2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.0878  -3.4008   0.0612   3.5129  15.9933 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        78.4974     0.4268 183.941  &lt; 2e-16 ***
+iden武装直升机     -4.7159     0.5147  -9.163  &lt; 2e-16 ***
+spirit_root有灵根   3.9030     0.5147   7.583 1.97e-13 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.383 on 447 degrees of freedom
+Multiple R-squared:   0.22, Adjusted R-squared:  0.2165 
+F-statistic: 63.03 on 2 and 447 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: magic_score
+             Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+iden          1  1986.3 1986.29  68.555 1.441e-15 ***
+spirit_root   1  1666.2 1666.16  57.507 1.967e-13 ***
+Residuals   447 12951.1   28.97                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5.<span class="fl">4.0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: magic_score
+             Df  Sum Sq Mean Sq F value  Pr(&gt;F)    
+spirit_root   1  1219.9 1219.93  42.105 2.3e-10 ***
+iden          1  2432.5 2432.52  83.957 &lt; 2e-16 ***
+Residuals   447 12951.1   28.97                    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5.<span class="fl">4.1</span>,lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: magic_score ~ iden
+Model 2: magic_score ~ iden + spirit_root
+  Res.Df   RSS Df Sum of Sq      F    Pr(&gt;F)    
+1    448 14617                                  
+2    447 12951  1    1666.2 57.507 1.967e-13 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5.<span class="fl">4.2</span>,lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: magic_score ~ spirit_root
+Model 2: magic_score ~ iden + spirit_root
+  Res.Df   RSS Df Sum of Sq      F    Pr(&gt;F)    
+1    448 15384                                  
+2    447 12951  1    2432.5 83.957 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">Anova</span>(lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type II tests)
+
+Response: magic_score
+             Sum Sq  Df F value    Pr(&gt;F)    
+iden         2432.5   1  83.957 &lt; 2.2e-16 ***
+spirit_root  1666.2   1  57.507 1.967e-13 ***
+Residuals   12951.1 447                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fl">9.163</span><span class="sc">^</span><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 83.96057</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fl">7.583</span><span class="sc">^</span><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 57.50189</code></pre>
+</div>
+</div>
+<p>https://md.psych.bio.uni-goettingen.de/mv/unit/lm_cat/lm_cat_unbal_ss_explained.html Note that no significant interaction is assumed (in other words, you should test for interaction first (SS(AB | A, B)) and only if AB is not significant, continue with the analysis for main effects).</p>
+<pre><code>If there is indeed no interaction, then type II is statistically more powerful than type III (see Langsrud [3] for further details).</code></pre>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Type III
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<section id="必须修改对比方式-contrasts" class="level3">
+<h3 class="anchored" data-anchor-id="必须修改对比方式-contrasts">1. 必须修改对比方式 (Contrasts)</h3>
+<p>这是最关键的一步。R 默认的对比方式是 <code>contr.treatment</code>（处理对比），这会导致自变量之间不具有正交性，从而使 Type III 的计算失去统计学意义。</p>
+<ul>
+<li><strong>要求：</strong> 必须将对比方式改为 <code>contr.sum</code>（总和对比）或 <code>contr.helmert</code>。</li>
+</ul>
+</section>
+<section id="正确的代码实现步骤" class="level3">
+<h3 class="anchored" data-anchor-id="正确的代码实现步骤">2. 正确的代码实现步骤</h3>
+<p>假设你的模型是 <code>magic_score ~ iden * spirit_root</code>，你应该按照以下流程操作：</p>
+<p><code>library(car)  # 第一步：在建立模型时，显式指定 contrasts # 这一步是为了确保截距项和主效应在存在交互作用时能被正确分割 model_type3 &lt;- lm(magic_score ~ iden * spirit_root,                    data = df5.1,                    contrasts = list(iden = contr.sum, spirit_root = contr.sum))  # 第二步：使用 car::Anova 并指定 type = 3 result &lt;- Anova(model_type3, type = 3)  # 查看结果 print(result)}</code></p>
+<p>简单来说：</p>
+<ul>
+<li><p><strong><code>contr.treatment</code> = Dummy Coding（哑变量编码 / 参照编码）</strong></p></li>
+<li><p><strong><code>contr.sum</code> = Effect Coding（效应编码 / 偏差编码）</strong></p></li>
+</ul>
+<p>为了让你彻底看清这两者如何影响 <strong>Type III SS</strong> 的结果，我们可以对比一下它们的内部机制：</p>
+</section>
+<section id="哑变量编码-dummy-coding-contr.treatment" class="level3">
+<h3 class="anchored" data-anchor-id="哑变量编码-dummy-coding-contr.treatment">1. 哑变量编码 (Dummy Coding / <code>contr.treatment</code>)</h3>
+<p>这是 R 的默认设置。它会选定一个基准组（Reference Group，通常是字母顺序第一的组）。</p>
+<ul>
+<li><p><strong>系数含义：</strong> 其他组与基准组之间的<strong>差值</strong>。</p></li>
+<li><p><strong>为什么不适合 Type III：</strong> 在包含交互项的模型里，如果你使用 Dummy Coding，主效应的 <span class="math inline">\(F\)</span> 检验其实是在检验“<strong>当另一个变量处于基准水平时</strong>，当前变量是否有影响”。这不符合 Type III 要求的“所有水平的平均影响”。</p></li>
+</ul>
+</section>
+<section id="效应编码-effect-coding-contr.sum" class="level3">
+<h3 class="anchored" data-anchor-id="效应编码-effect-coding-contr.sum">2. 效应编码 (Effect Coding / <code>contr.sum</code>)</h3>
+<p>它将各组的效应与**全体均值（Grand Mean）**进行比较。</p>
+<ul>
+<li><p><strong>编码方式：</strong> 最后一组被编码为 <code>-1</code>，其他组编码为 <code>1</code> 或 <code>0</code>。</p></li>
+<li><p><strong>系数含义：</strong> 该组均值偏离总均值的<strong>程度</strong>。</p></li>
+<li><p><strong>为什么它是 Type III 的标配：</strong> 在 Effect Coding 下，各因素的列之间是**正交（Orthogonal）**的。只有这样，当你计算某个因素的平方和时，才能真正做到“剔除掉交互项和其他所有项的影响”，得到干净的主效应贡献。</p></li>
+</ul>
+</section>
+</div>
+</div>
+</section>
+<section id="两因素方差分析" class="level2">
+<h2 class="anchored" data-anchor-id="两因素方差分析">两因素方差分析</h2>
+<p>回归，简单主效应与主效应。</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden,df5<span class="fl">.1</span>)</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-14.1605  -4.2833  -0.1469   4.1079  18.5772 
+
+Coefficients:
+               Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)     80.4489     0.3669  219.26   &lt;2e-16 ***
+iden武装直升机  -5.3483     0.5189  -10.31   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.801 on 498 degrees of freedom
+Multiple R-squared:  0.1758,    Adjusted R-squared:  0.1742 
+F-statistic: 106.2 on 1 and 498 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ spirit_root, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-14.5669  -4.5029  -0.2863   4.1311  17.5207 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        75.5071     0.3777  199.89  &lt; 2e-16 ***
+spirit_root有灵根   4.5354     0.5342    8.49  2.4e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.973 on 498 degrees of freedom
+Multiple R-squared:  0.1264,    Adjusted R-squared:  0.1247 
+F-statistic: 72.08 on 1 and 498 DF,  p-value: 2.396e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">+</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden + spirit_root, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.4039  -3.5213  -0.0971   3.3806  16.3095 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        78.1812     0.4139  188.89   &lt;2e-16 ***
+iden武装直升机     -5.3483     0.4779  -11.19   &lt;2e-16 ***
+spirit_root有灵根   4.5354     0.4779    9.49   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.343 on 497 degrees of freedom
+Multiple R-squared:  0.3022,    Adjusted R-squared:  0.2994 
+F-statistic: 107.6 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set.seed(233)</span></span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df5.1 &lt;- df5 |&gt; </span></span>
+<span id="cb100-3"><a href="#cb100-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   group_by(iden, spirit_root) |&gt; </span></span>
+<span id="cb100-4"><a href="#cb100-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   slice_sample(n = if (first(iden) == "武装直升机") 100 else 125) |&gt; </span></span>
+<span id="cb100-5"><a href="#cb100-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   ungroup()</span></span>
+<span id="cb100-6"><a href="#cb100-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb100-7"><a href="#cb100-7" aria-hidden="true" tabindex="-1"></a><span class="co"># table(df5.1$iden, df5.1$spirit_root)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set.seed(233)</span></span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df5.1.frag1 &lt;- slice_sample(df5[df5$iden_n==0 &amp; df5$spirit_root_n==1,],n=50,replace=F)</span></span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a><span class="co"># set.seed(233)</span></span>
+<span id="cb101-4"><a href="#cb101-4" aria-hidden="true" tabindex="-1"></a><span class="co"># df5.1.frag2 &lt;- slice_sample(df5[df5$iden_n==0 &amp; df5$spirit_root_n==0,],n=75,replace=F)</span></span>
+<span id="cb101-5"><a href="#cb101-5" aria-hidden="true" tabindex="-1"></a><span class="co"># df5.1 &lt;- rbind(df5.1.frag1,df5.1.frag2,df5[df5$iden_n==1,])</span></span>
+<span id="cb101-6"><a href="#cb101-6" aria-hidden="true" tabindex="-1"></a><span class="co"># table(df5.1$iden, df5.1$spirit_root)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.4</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>spirit_root<span class="sc">+</span>iden,df5<span class="fl">.1</span>)</span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ spirit_root + iden, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.4039  -3.5213  -0.0971   3.3806  16.3095 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        78.1812     0.4139  188.89   &lt;2e-16 ***
+spirit_root有灵根   4.5354     0.4779    9.49   &lt;2e-16 ***
+iden武装直升机     -5.3483     0.4779  -11.19   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.343 on 497 degrees of freedom
+Multiple R-squared:  0.3022,    Adjusted R-squared:  0.2994 
+F-statistic: 107.6 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5<span class="fl">.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: magic_score
+             Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+spirit_root   1  2571.2  2571.2  90.055 &lt; 2.2e-16 ***
+iden          1  3575.5  3575.5 125.232 &lt; 2.2e-16 ***
+Residuals   497 14189.9    28.6                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: magic_score
+             Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+iden          1  3575.5  3575.5 125.232 &lt; 2.2e-16 ***
+spirit_root   1  2571.2  2571.2  90.055 &lt; 2.2e-16 ***
+Residuals   497 14189.9    28.6                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">5.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">5.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>spirit_root<span class="sc">*</span>iden,df5<span class="fl">.1</span>)</span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">6.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden,df5<span class="fl">.1</span>)</span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">6.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">*</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a>lm5.<span class="fl">6.3</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">*</span>spirit_root,df5<span class="fl">.1</span>,<span class="at">contrasts=</span><span class="fu">list</span>(<span class="at">iden=</span>contr.sum, <span class="at">spirit_root=</span>contr.sum))</span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5.<span class="fl">5.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: magic_score
+                  Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+spirit_root        1  2571.2  2571.2  110.99 &lt; 2.2e-16 ***
+iden               1  3575.5  3575.5  154.35 &lt; 2.2e-16 ***
+spirit_root:iden   1  2699.9  2699.9  116.55 &lt; 2.2e-16 ***
+Residuals        496 11490.0    23.2                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lm5.<span class="fl">6.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: magic_score
+                  Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+iden               1  3575.5  3575.5  154.35 &lt; 2.2e-16 ***
+spirit_root        1  2571.2  2571.2  110.99 &lt; 2.2e-16 ***
+iden:spirit_root   1  2699.9  2699.9  116.55 &lt; 2.2e-16 ***
+Residuals        496 11490.0    23.2                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">Anova</span>(lm5.<span class="fl">6.2</span>,<span class="at">type=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type III tests)
+
+Response: magic_score
+                 Sum Sq  Df    F value Pr(&gt;F)    
+(Intercept)      810132   1 34971.6053 &lt;2e-16 ***
+iden               6245   1   269.5705 &lt;2e-16 ***
+spirit_root           1   1     0.0339 0.8539    
+iden:spirit_root   2700   1   116.5481 &lt;2e-16 ***
+Residuals         11490 496                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">Anova</span>(lm5.<span class="fl">6.2</span>,<span class="at">type=</span><span class="dv">3</span>,<span class="at">contrasts=</span><span class="fu">list</span>(<span class="at">iden=</span>contr.sum, <span class="at">spirit_root=</span>contr.sum))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type III tests)
+
+Response: magic_score
+                 Sum Sq  Df    F value Pr(&gt;F)    
+(Intercept)      810132   1 34971.6053 &lt;2e-16 ***
+iden               6245   1   269.5705 &lt;2e-16 ***
+spirit_root           1   1     0.0339 0.8539    
+iden:spirit_root   2700   1   116.5481 &lt;2e-16 ***
+Residuals         11490 496                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">Anova</span>(lm5.<span class="fl">6.3</span>,<span class="at">type=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type III tests)
+
+Response: magic_score
+                  Sum Sq  Df   F value    Pr(&gt;F)    
+(Intercept)      3024458   1 130559.23 &lt; 2.2e-16 ***
+iden                3576   1    154.35 &lt; 2.2e-16 ***
+spirit_root         2571   1    110.99 &lt; 2.2e-16 ***
+iden:spirit_root    2700   1    116.55 &lt; 2.2e-16 ***
+Residuals          11490 496                        
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">Anova</span>(lm5.<span class="fl">5.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type II tests)
+
+Response: magic_score
+                  Sum Sq  Df F value    Pr(&gt;F)    
+spirit_root       2571.2   1  110.99 &lt; 2.2e-16 ***
+iden              3575.5   1  154.35 &lt; 2.2e-16 ***
+spirit_root:iden  2699.9   1  116.55 &lt; 2.2e-16 ***
+Residuals        11490.0 496                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>when data is balanced, the factors are orthogonal, and types I, II and III all give the same results.</p>
+<p>The answer depends on whether your intention in a contrast is to treat means as having equal import regardless of group size (n), which is the unweighted means approach, or to weight means relative to their sample size, which of course, is a weighted means approach.</p>
+<p>For an unweighted means approach, two contrasts are orthogonal if the sum of coefficient product terms, across groups, equals zero: e.g., c11c21 + c12c22 + … + c1kc2k = 0 (where cij is the coefficient used for the i-th contrast and j-th group).</p>
+<p>For a weighted means approach, two contrasts are orthogonal if: n1c11c21 + n2c12c22 + … + nkc1kc2k = 0 (where cij is defined as above and nj is the sample size for group j).</p>
+<p>In many experimental designs, the usual intention of behind a contrast is to compare means as having equal import regardless of group size. Therefore (using cij and nj as defined above):</p>
+<p>SS(contrast i) = (ci1*M1 + ci2M2 + … + cikMk)^2 / (ci1^2/n1 + ci2^2/n2 + … + cik^2/nk) (where Mj is the mean for group j)</p>
+<p>Here’s a link that walks through a worked example: <a href="https://www.researchgate.net/deref/https%3A%2F%2Fwww.uvm.edu%2F~statdhtx%2FStatPages%2FUnequal-ns%2FUnequal_n's_contrasts.html?_tp=eyJjb250ZXh0Ijp7ImZpcnN0UGFnZSI6InF1ZXN0aW9uIiwicGFnZSI6InF1ZXN0aW9uIn19">https://www.uvm.edu/~statdhtx/StatPages/Unequal-ns/Unequal_n’s_contrasts.html</a></p>
+<p>Finally, B. J. Winer’s 1971 text, Statistical principles in experimental design (2nd ed.). also addresses the issue.</p>
+<p>Good luck with your work.</p>
+<p><a href="https://www.researchgate.net/post/How_are_orthogonal_contrasts_selected_in_case_of_unequal_sample_sizes" class="uri">https://www.researchgate.net/post/How_are_orthogonal_contrasts_selected_in_case_of_unequal_sample_sizes</a></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>aov5<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">aov</span>(magic_score<span class="sc">~</span>iden<span class="sc">*</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(aov5<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  Df Sum Sq Mean Sq F value Pr(&gt;F)    
+iden               1   3576    3576   154.3 &lt;2e-16 ***
+spirit_root        1   2571    2571   111.0 &lt;2e-16 ***
+iden:spirit_root   1   2700    2700   116.5 &lt;2e-16 ***
+Residuals        496  11490      23                   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">Anova</span>(aov5<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type II tests)
+
+Response: magic_score
+                  Sum Sq  Df F value    Pr(&gt;F)    
+iden              3575.5   1  154.35 &lt; 2.2e-16 ***
+spirit_root       2571.2   1  110.99 &lt; 2.2e-16 ***
+iden:spirit_root  2699.9   1  116.55 &lt; 2.2e-16 ***
+Residuals        11490.0 496                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</section>
+<section id="交互作用的构造" class="level2">
+<h2 class="anchored" data-anchor-id="交互作用的构造">交互作用的构造</h2>
+<p>交互与相关不同。</p>
+<p>正交；axb=0；a*b*c=0,axb=0,axc=0,bxc=0</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 设定随机种子，保证你能用这段代码得到跟我一样的结果</span></span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">233</span>)</span>
+<span id="cb124-3"><a href="#cb124-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 生成被试ID</span></span>
+<span id="cb124-4"><a href="#cb124-4" aria-hidden="true" tabindex="-1"></a>ID <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">500</span>)</span>
+<span id="cb124-5"><a href="#cb124-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 我们的老朋友自我性别认同</span></span>
+<span id="cb124-6"><a href="#cb124-6" aria-hidden="true" tabindex="-1"></a>iden <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"武装直升机"</span>,<span class="dv">250</span>),<span class="fu">rep</span>(<span class="st">"某品牌塑料袋"</span>,<span class="dv">250</span>)))</span>
+<span id="cb124-7"><a href="#cb124-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 这次直接生成对应自我性别认同的哑变量编码</span></span>
+<span id="cb124-8"><a href="#cb124-8" aria-hidden="true" tabindex="-1"></a>iden_n <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>,<span class="dv">250</span>),<span class="fu">rep</span>(<span class="dv">1</span>,<span class="dv">250</span>))</span>
+<span id="cb124-9"><a href="#cb124-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 灵根变量</span></span>
+<span id="cb124-10"><a href="#cb124-10" aria-hidden="true" tabindex="-1"></a>spirit_root <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"无灵根"</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="st">"有灵根"</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="st">"无灵根"</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="st">"有灵根"</span>,<span class="dv">125</span>)))</span>
+<span id="cb124-11"><a href="#cb124-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 灵根的哑变量编码</span></span>
+<span id="cb124-12"><a href="#cb124-12" aria-hidden="true" tabindex="-1"></a>spirit_root_n <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="dv">1</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="dv">0</span>,<span class="dv">125</span>),<span class="fu">rep</span>(<span class="dv">1</span>,<span class="dv">125</span>))</span>
+<span id="cb124-13"><a href="#cb124-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 生成魔法天赋</span></span>
+<span id="cb124-14"><a href="#cb124-14" aria-hidden="true" tabindex="-1"></a>magic_score <span class="ot">&lt;-</span> <span class="dv">70</span> <span class="sc">+</span> <span class="dv">10</span><span class="sc">*</span>iden_n <span class="sc">+</span> <span class="dv">10</span><span class="sc">*</span>spirit_root_n <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">500</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
+<span id="cb124-15"><a href="#cb124-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb124-16"><a href="#cb124-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 因为第一个数据框我们命名为df1,这里我们就命名为df2了</span></span>
+<span id="cb124-17"><a href="#cb124-17" aria-hidden="true" tabindex="-1"></a>df2<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(ID,iden,iden_n,spirit_root,spirit_root_n,magic_score)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df2<span class="fl">.2</span>, <span class="fu">aes</span>(<span class="at">x =</span> iden, <span class="at">y =</span> magic_score, <span class="at">fill =</span> spirit_root)) <span class="sc">+</span></span>
+<span id="cb125-2"><a href="#cb125-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">trim =</span> <span class="cn">FALSE</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.8</span>)) <span class="sc">+</span></span>
+<span id="cb125-3"><a href="#cb125-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">width =</span> <span class="fl">0.1</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.8</span>), <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb125-4"><a href="#cb125-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#66c2a5"</span>, <span class="st">"#fc8d62"</span>)) <span class="sc">+</span>  <span class="co"># 颜色自定义</span></span>
+<span id="cb125-5"><a href="#cb125-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb125-6"><a href="#cb125-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"自我性别认同与灵根对魔法天赋的交互作用"</span>,</span>
+<span id="cb125-7"><a href="#cb125-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"自我性别认同"</span>,</span>
+<span id="cb125-8"><a href="#cb125-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"魔法天赋"</span>,</span>
+<span id="cb125-9"><a href="#cb125-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"灵根状态"</span></span>
+<span id="cb125-10"><a href="#cb125-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb125-11"><a href="#cb125-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb125-12"><a href="#cb125-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="chap5_files/figure-html/unnamed-chunk-52-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">*</span>spirit_root,df2<span class="fl">.2</span>)</span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden * spirit_root, data = df2.2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.0943  -0.1403   3.2467  13.9858 
+
+Coefficients:
+                                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                       80.5050     0.4305 187.007   &lt;2e-16 ***
+iden武装直升机                    -9.9958     0.6088 -16.419   &lt;2e-16 ***
+spirit_root有灵根                  9.8879     0.6088  16.241   &lt;2e-16 ***
+iden武装直升机:spirit_root有灵根  -0.7050     0.8610  -0.819    0.413    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.813 on 496 degrees of freedom
+Multiple R-squared:  0.6831,    Adjusted R-squared:  0.6812 
+F-statistic: 356.4 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+从另一个角度重新理解正交编码
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+</section>
+<section id="编码" class="level2">
+<h2 class="anchored" data-anchor-id="编码">编码</h2>
+<p>$$ <span class="math display">\[\begin{align}
+
+\end{align}\]</span> $$</p>
+</section>
+<section id="简单效应检验" class="level2">
+<h2 class="anchored" data-anchor-id="简单效应检验">简单效应检验</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>lm5<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden_n<span class="sc">*</span>spirit_root_n,df5<span class="fl">.1</span>)</span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm5<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = magic_score ~ iden_n * spirit_root_n, data = df5.1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1330  -3.0943  -0.1403   3.2467  13.9858 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           70.5092     0.4305  163.79   &lt;2e-16 ***
+iden_n                 9.9958     0.6088   16.42   &lt;2e-16 ***
+spirit_root_n          9.1828     0.6088   15.08   &lt;2e-16 ***
+iden_n:spirit_root_n  -9.2950     0.8610  -10.80   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.813 on 496 degrees of freedom
+Multiple R-squared:  0.435, Adjusted R-squared:  0.4316 
+F-statistic: 127.3 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>aov2<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(magic_score<span class="sc">~</span>iden<span class="sc">*</span>spirit_root,df5<span class="fl">.1</span>)</span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">Anova</span>(aov2<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type II tests)
+
+Response: magic_score
+                  Sum Sq  Df F value    Pr(&gt;F)    
+iden              3575.5   1  154.35 &lt; 2.2e-16 ***
+spirit_root       2571.2   1  110.99 &lt; 2.2e-16 ***
+iden:spirit_root  2699.9   1  116.55 &lt; 2.2e-16 ***
+Residuals        11490.0 496                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(phia)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: car</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: carData</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'car'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:dplyr':
+
+    recode</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="fu">testInteractions</span>(aov5<span class="fl">.1</span>, <span class="at">fixed=</span><span class="st">"iden"</span>, <span class="at">across =</span> <span class="st">"spirit_root"</span>, <span class="at">adjsutment=</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>F Test: 
+P-value adjustment method: holm
+               Value      SE  Df Sum of Sq        F Pr(&gt;F)    
+某品牌塑料袋  0.1121 0.60881   1       0.8   0.0339 0.8539    
+  武装直升   -9.1828 0.60881   1    5270.3 227.5063 &lt;2e-16 ***
+Residuals                    496   11490.0                    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a><span class="fu">testInteractions</span>(aov5<span class="fl">.1</span>, <span class="at">fixed=</span><span class="st">"spirit_root"</span>, <span class="at">across =</span> <span class="st">"iden"</span>, <span class="at">adjsutment=</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>F Test: 
+P-value adjustment method: holm
+           Value      SE  Df Sum of Sq        F Pr(&gt;F)    
+无灵根    9.9958 0.60881   1    6244.7 269.5705 &lt;2e-16 ***
+有灵根    0.7008 0.60881   1      30.7   1.3251 0.2502    
+Residuals                496   11490.0                    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</section>
+<section id="更多因素更多水平尽在多因素方差分析" class="level2">
+<h2 class="anchored" data-anchor-id="更多因素更多水平尽在多因素方差分析">更多因素、更多水平，尽在多因素方差分析</h2>
+<p>大五灵根模型。</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+对比编码
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>这是一个非常细致的问题。简单来说：<strong><code>contr.helmert</code> 属于效应编码（Effect Coding）的一种大类，但它与 <code>contr.sum</code> 的具体逻辑完全不同。</strong></p>
+<p>如果说 <code>contr.sum</code> 是把每一组与“整体平均值”比，那么 <code>contr.helmert</code> 就是在做“<strong>阶梯式对比</strong>”。</p>
+<section id="contr.helmert-的核心逻辑分层累积比较" class="level3">
+<h3 class="anchored" data-anchor-id="contr.helmert-的核心逻辑分层累积比较">1. <code>contr.helmert</code> 的核心逻辑：分层累积比较</h3>
+<p>Helmert 编码的特点是：<strong>将当前的水平（Level）与之前所有水平的平均值进行比较。</strong></p>
+<p>假设你的变量有三个水平：A、B、C。</p>
+<ul>
+<li><p><strong>第一个对比：</strong> B vs.&nbsp;A</p></li>
+<li><p><strong>第二个对比：</strong> C vs.&nbsp;(A 和 B 的平均值)</p></li>
+<li><p><strong>第三个对比（如果有 D）：</strong> D vs.&nbsp;(A, B, C 的平均值)</p></li>
+</ul>
+</section>
+<section id="它与-contr.sum-standard-effect-coding-的区别" class="level3">
+<h3 class="anchored" data-anchor-id="它与-contr.sum-standard-effect-coding-的区别">2. 它与 <code>contr.sum</code> (Standard Effect Coding) 的区别</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>特性</strong></td>
+<td><strong>contr.sum (偏差编码)</strong></td>
+<td><strong>contr.helmert (Helmert 编码)</strong></td>
+</tr>
+<tr class="even">
+<td><strong>比较基准</strong></td>
+<td>所有组的<strong>总平均值</strong> (Grand Mean)</td>
+<td><strong>之前所有组</strong>的平均值</td>
+</tr>
+<tr class="odd">
+<td><strong>适用场景</strong></td>
+<td>想知道某一组是否偏离整体平均水平。</td>
+<td>变量具有<strong>某种顺序</strong>或<strong>累积性质</strong>时（如受教育程度、实验处理的递进）。</td>
+</tr>
+<tr class="even">
+<td><strong>正交性</strong></td>
+<td><strong>正交</strong>（在各组样本量相等时）</td>
+<td><strong>完全正交</strong>（各组样本量相等时）</td>
+</tr>
+<tr class="odd">
+<td><strong>对 Type III 的支持</strong></td>
+<td><strong>支持</strong>，是标准的 Type III 做法。</td>
+<td><strong>支持</strong>，因为它是正交编码，能正确分割平方和。</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="为什么-helmert-编码也支持-type-iii" class="level3">
+<h3 class="anchored" data-anchor-id="为什么-helmert-编码也支持-type-iii">3. 为什么 Helmert 编码也支持 Type III？</h3>
+<p>之所以你在某些教材中看到 <code>contr.helmert</code> 也能配合 Type III SS 使用，是因为它满足了 <strong>正交性（Orthogonality）</strong> 的要求。</p>
+<p>在方差分析中，只要编码是正交的，截距项、主效应和交互项对应的设计矩阵列就是相互独立的。这样，Type III SS 在剔除其他项的影响时，不会把属于该项的变异给“误杀”掉。</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><strong>水平</strong></td>
+<td><strong>对比 1 (B vs A)</strong></td>
+<td><strong>对比 2 (C vs AB平均)</strong></td>
+</tr>
+<tr class="even">
+<td><strong>A</strong></td>
+<td>-1</td>
+<td>-1</td>
+</tr>
+<tr class="odd">
+<td><strong>B</strong></td>
+<td>1</td>
+<td>-1</td>
+</tr>
+<tr class="even">
+<td><strong>C</strong></td>
+<td>0</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="什么时候用-contr.helmert-而不是-contr.sum" class="level3">
+<h3 class="anchored" data-anchor-id="什么时候用-contr.helmert-而不是-contr.sum">4. 什么时候用 <code>contr.helmert</code> 而不是 <code>contr.sum</code>？</h3>
+<p>虽然两者都能让 <code>car::Anova(type = 3)</code> 跑出正确的 <span class="math inline">\(F\)</span> 检验和 <span class="math inline">\(P\)</span> 值，但它们对**回归系数（Coefficients）**的解释完全不同：</p>
+<ul>
+<li><p><strong>如果你关注整体偏离：</strong> 选 <code>contr.sum</code>。比如你想看“金灵根”是否比“平均水平”更强。</p></li>
+<li><p><strong>如果你关注递进效果：</strong> 选 <code>contr.helmert</code>。比如你的自变量是“修炼等级”（初级、中级、高级），你想看“高级”是否比“初级和中级的平均水平”有显著质变。</p></li>
+</ul>
+</section>
+</div>
+</div>
+</section>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>以上设定纯属根据看过的小说胡编，如有雷同，那就对了。<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>注意，这里的叙述仅是在做逻辑上的分析。从研究方法的角度看，作为一个魔法科学的研究者，理想情况下你其实应该基于你的假设和理论去收集你所需要的变量，并进行对应的验证你假设的统计分析。而不是在收集了数据之后，再来考虑和尝试各种统计分析。<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>查询了中英文互联网上的资料，很多对于加法假设的描述都是错的，比如把它认为是一种多重共线性的体现。甚至很多回归方程的假设介绍中根本没有提及加法假设。<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>或者调节作用，我会在下一章中介绍的概念。<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>留一个脚注以免我忘了。<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>这里我们使用的是我们之前手动做的编码，而非上面分析中R自动对分类变量进行的编码。换言之，对于性别自我认同的赋值是相反的。<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
